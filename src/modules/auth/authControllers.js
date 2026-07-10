@@ -1,67 +1,102 @@
-import jwt from "jsonwebtoken";
+import * as authService from "./authService.js";
 import bcrypt from "bcrypt";
-import pool from "../../config/db.js";
-import dotenv from "dotenv";
 
-
-dotenv.config();
 
 export const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-  const exists = await pool.query(
-    "SELECT * FROM users WHERE email = $1",
-    [email]
-  );
+    const user = await authService.register(
+      username,
+      email,
+      password
+    );
 
-  if (exists.rows.length > 0) {
-    return res.status(400).json({ message: "User already exists" });
+    res.status(201).json({
+      message: "User registered",
+      user
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const result = await pool.query(
-    "INSERT INTO users(username,email,password) VALUES($1,$2,$3) RETURNING id, username, email",
-    [username, email, hashedPassword]
-  );
-
-  res.status(201).json({
-    message: "User registered",
-    user: result.rows[0]
-  });
 };
+
 
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const result = await pool.query(
-    "SELECT * FROM users WHERE email = $1",
-    [email]
-  );
+    const token = await authService.login(
+      email,
+      password
+    );
 
-  const user = result.rows[0];
+    res.json({
+      message: "Login successful",
+      token
+    });
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
   }
+  
+};
 
-  const isMatch = await bcrypt.compare(password, user.password);
+export const forgotPassword = async (req,res)=>{
 
-  if (!isMatch) {
-    return res.status(401).json({ message: "Wrong password" });
-  }
+try{
 
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+const {email}=req.body;
 
-  res.json({
-    message: "Login successful",
-    token
-  });
+const token = await authService.forgotPassword(email);
+
+res.json({
+message:"Password reset token created",
+token
+});
+
+
+}catch(error){
+
+res.status(400).json({
+message:error.message
+});
+
+}
+
 };
 
 
+export const resetPassword = async(req,res)=>{
+
+try{
+
+const {token,newPassword}=req.body;
+
+
+await authService.resetPassword(
+token,
+newPassword
+);
+
+
+res.json({
+message:"Password changed successfully"
+});
+
+
+}catch(error){
+
+res.status(400).json({
+message:error.message
+});
+
+}
+
+};
