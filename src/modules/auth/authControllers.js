@@ -1,15 +1,21 @@
 import * as authService from "./authService.js";
+import { validateRegister} from "./authValidations.js";
 import bcrypt from "bcrypt";
 
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    validateRegister(req.body);
+
+    const { firstname, lastname, email, password, phone, avatar } = req.body;
 
     const user = await authService.register(
-      username,
+      firstname,
+      lastname,
       email,
-      password
+      password,
+      phone,
+      avatar 
     );
 
     res.status(201).json({

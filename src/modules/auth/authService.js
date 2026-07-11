@@ -8,9 +8,12 @@ dotenv.config();
 
 
 export const register = async (
-  username,
+  firstName,
+  lastName,
   email,
-  password
+  password,
+  phone,
+  avatar
 ) => {
 
   const exists = await pool.query(
@@ -33,20 +36,25 @@ export const register = async (
   const result = await pool.query(
     `
     INSERT INTO users 
-    (username, email, password)
-    VALUES($1,$2,$3)
-    RETURNING id, username, email
+    (first_name, last_name, email, password_hash, phone, avatar)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, first_name, last_name, email, phone, avatar, role
     `,
     [
-      username,
+      firstName,
+      lastName,
       email,
-      hashedPassword
+      hashedPassword,
+      phone,
+      avatar || null
     ]
   );
 
 
   return result.rows[0];
 };
+
+
 
 
 
@@ -72,7 +80,7 @@ export const login = async (
 
   const isMatch = await bcrypt.compare(
     password,
-    user.password
+    user.password_hash
   );
 
 
@@ -84,7 +92,8 @@ export const login = async (
   const token = jwt.sign(
     {
       id: user.id,
-      email: user.email
+      email: user.email,
+      role: user.role
     },
     process.env.JWT_SECRET,
     {
@@ -93,8 +102,22 @@ export const login = async (
   );
 
 
-  return token;
+  return {
+    token,
+    user: {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      avatar: user.avatar,
+      role: user.role
+    }
+  };
 };
+
+
+
 
 
 export const forgotPassword = async (email) => {
@@ -104,20 +127,28 @@ export const forgotPassword = async (email) => {
     [email]
   );
 
+
   const user = result.rows[0];
+
 
   if (!user) {
     throw new Error("User not found");
   }
 
+
   const token = crypto.randomBytes(32).toString("hex");
+
 
   const tokenHash = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
 
-  const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+  const expires = new Date(
+    Date.now() + 15 * 60 * 1000
+  );
+
 
   await pool.query(
     `
@@ -132,18 +163,25 @@ export const forgotPassword = async (email) => {
     ]
   );
 
+
   return token;
 };
+
+
+
+
 
 export const resetPassword = async (
   token,
   newPassword
 ) => {
 
+
   const tokenHash = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
+
 
   const result = await pool.query(
     `
@@ -159,19 +197,23 @@ export const resetPassword = async (
 
   const reset = result.rows[0];
 
+
   if (!reset) {
     throw new Error("Invalid or expired token");
   }
+
 
   const hashedPassword = await bcrypt.hash(
     newPassword,
     10
   );
 
+
   await pool.query(
     `
     UPDATE users
-    SET password = $1
+    SET password_hash = $1,
+        updated_at = CURRENT_TIMESTAMP
     WHERE id = $2
     `,
     [
@@ -180,14 +222,19 @@ export const resetPassword = async (
     ]
   );
 
+
   await pool.query(
     `
     UPDATE password_reset_tokens
     SET used = true
     WHERE id = $1
     `,
-    [reset.id]
+    [
+      reset.id
+    ]
   );
+
 
   return true;
 };
+
