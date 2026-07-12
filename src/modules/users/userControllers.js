@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import pool from "../../config/db.js";
-import dotenv from "dotenv";
+
 
 export const profile = (req, res) => {
   res.json({

@@ -22,11 +22,11 @@ export const validateRegister = ({
     errors.push("Invalid email");
   }
 
- const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{10,}$/;
+ const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
 if (!passwordRegex.test(password)) {
   errors.push(
-    "Password must contain at least 10 characters, one letter, one number and one special character"
+    "Password must contain at least 8 letters, one number and one special character"
   );
 }
 

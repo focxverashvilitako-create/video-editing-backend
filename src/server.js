@@ -1,13 +1,18 @@
+import "./config/db.js";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: "../../.env" });
+console.log("ENV TEST:", {
+  client: process.env.GOOGLE_CLIENT_ID,
+  redirect: process.env.GOOGLE_REDIRECT_URI
+});
 import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/authRoutes.js";
 import userRoutes from "./modules/users/userRoutes.js";
 
-
 const app = express();
 app.use(cors());
+
 
 
 app.use(express.json());

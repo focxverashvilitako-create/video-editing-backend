@@ -1,10 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import pool from "../../config/db.js";
-import dotenv from "dotenv";
+
+
 import crypto from "crypto";
 
-dotenv.config();
+
 
 
 export const register = async (
