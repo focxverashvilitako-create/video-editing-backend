@@ -1,3 +1,4 @@
+import pool from "../../config/db.js";
 import dotenv from "dotenv";
 dotenv.config();
 import jwt from "jsonwebtoken";
@@ -5,9 +6,6 @@ import bcrypt from "bcrypt";
 
 
 import crypto from "crypto";
-
-
-
 
 export const register = async (
   firstName,
@@ -53,10 +51,28 @@ export const register = async (
   );
 
 
-  return result.rows[0];
+  const user = result.rows[0];
+
+
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1d"
+    }
+  );
+
+
+  return {
+    token,
+    user
+  };
+
 };
-
-
 
 
 

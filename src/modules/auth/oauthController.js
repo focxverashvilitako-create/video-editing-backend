@@ -1,13 +1,11 @@
+import pool from "../../config/db.js";
 import {
   getGoogleUser,
   handleGoogleLogin
 } from "./oauthService.js";
-
-import pool from "../../config/db.js";
 import jwt from "jsonwebtoken";
 
 
-// Google callback
 
 export const googleCallback = async (req, res) => {
 
@@ -67,6 +65,7 @@ export const completeGoogleRegister = async (req, res) => {
       SELECT *
       FROM pending_social_users
       WHERE id = $1
+      AND expires_at > NOW()
       `,
       [
         pendingId
@@ -74,13 +73,12 @@ export const completeGoogleRegister = async (req, res) => {
     );
 
 
-    if (pendingResult.rows.length === 0) {
 
-      return res.status(404).json({
-        message: "Pending user not found"
-      });
-
-    }
+     if (pendingResult.rows.length === 0) {
+  return res.status(400).json({
+    message: "Registration session invalid or expired. Please try again."
+  });
+}
 
 
     const googleUser = pendingResult.rows[0];

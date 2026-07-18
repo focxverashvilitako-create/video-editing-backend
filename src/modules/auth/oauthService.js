@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 
-dotenv.config({ path: "../../.env" });
+dotenv.config();
 
 
 console.log("OAUTH SERVICE LOADED");
@@ -122,10 +122,11 @@ export const handleGoogleLogin = async (googleUser) => {
       first_name,
       last_name,
       email,
-      avatar
+      avatar,
+      expires_at
     )
     VALUES
-    ($1,$2,$3,$4,$5,$6)
+    ($1,$2,$3,$4,$5,$6,NOW() + INTERVAL '15 minutes')
     RETURNING id
     `,
     [
@@ -134,9 +135,11 @@ export const handleGoogleLogin = async (googleUser) => {
       firstName || null,
       lastName || null,
       email,
-      avatar || null
+      avatar || null,
+    
     ]
   );
+
 
 
 
