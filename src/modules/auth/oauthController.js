@@ -1,9 +1,18 @@
 import pool from "../../config/db.js";
 import {
+  getGoogleAuthUrl,
   getGoogleUser,
   handleGoogleLogin
 } from "./oauthService.js";
 import jwt from "jsonwebtoken";
+
+export const googleLogin = (req, res) => {
+
+  const authUrl = getGoogleAuthUrl();
+
+  res.redirect(authUrl);
+
+};
 
 
 
@@ -58,7 +67,7 @@ export const completeGoogleRegister = async (req, res) => {
 
 
 
-    // ვიღებთ დროებით Google მომხმარებელს
+    
 
     const pendingResult = await pool.query(
       `

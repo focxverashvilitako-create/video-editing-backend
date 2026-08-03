@@ -2,21 +2,52 @@ import pool from "../../config/db.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 
 export const getFacebookUser = async (code) => {
 
-  // ეს ნაწილი მერე შეიცვლება Facebook API-ით
+  const tokenURL = `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID}&redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI)}&client_secret=${process.env.FACEBOOK_APP_SECRET}&code=${code}`;
 
+  const tokenResponse = await fetch(tokenURL);
+
+  const tokenData = await tokenResponse.json();
+  if(!tokenResponse.ok){
+
+    throw new Error(
+      tokenData.error?.message || "Facebook token error"
+    );
+
+  }
+
+
+
+
+
+  const userURL =
+
+  `https://graph.facebook.com/v23.0/me?fields=id,first_name,last_name,email,picture&access_token=${tokenData.access_token}`;
+
+  const userResponse = await fetch(userURL);
+
+  const userData = await userResponse.json();
+  if(!userResponse.ok){
+    throw new Error(
+      userData.error?.message || "Facebook user error"
+    );
+
+    if(!userData.email){
+  throw new Error("Facebook email not provided");
+}
+  }
 
   return {
-    facebookId: "facebook-test-id",
-    email: "facebook@test.com",
-    firstName: "Facebook",
-    lastName: "User",
-    avatar: null,
-    phone: null
+    facebookId: userData.id,
+    email: userData.email,
+    firstName: userData.first_name,
+    lastName: userData.last_name,
+    avatar: userData.picture?.data?.url || null,
   };
 
 };
@@ -30,8 +61,7 @@ export const handleFacebookLogin = async (facebookUser) => {
     email,
     firstName,
     lastName,
-    avatar,
-    phone
+    avatar
   } = facebookUser;
 
 
@@ -78,86 +108,7 @@ export const handleFacebookLogin = async (facebookUser) => {
 
 
 
-  // თუ Facebook-მა phone მოგვცა
-
-  if(phone){
-
-
-    result = await pool.query(
-      `
-      INSERT INTO users
-      (
-        first_name,
-        last_name,
-        email,
-        phone,
-        avatar,
-        registration_completed
-      )
-      VALUES
-      ($1,$2,$3,$4,$5,true)
-      RETURNING *
-      `,
-      [
-        firstName,
-        lastName,
-        email,
-        phone,
-        avatar
-      ]
-    );
-
-
-    user = result.rows[0];
-
-
-
-    await pool.query(
-      `
-      INSERT INTO social_accounts
-      (
-        user_id,
-        provider,
-        provider_user_id
-      )
-      VALUES
-      ($1,$2,$3)
-      `,
-      [
-        user.id,
-        "facebook",
-        facebookId
-      ]
-    );
-
-
-
-    const token = jwt.sign(
-      {
-        id:user.id,
-        email:user.email,
-        role:user.role
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn:"1d"
-      }
-    );
-
-
-    return {
-      token,
-      user
-    };
-
-  }
-
-
-
-
-
-  // თუ phone არ აქვს Facebook-ს
-
+  
   result = await pool.query(
     `
     INSERT INTO pending_social_users

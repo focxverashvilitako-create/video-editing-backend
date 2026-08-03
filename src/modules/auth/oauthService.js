@@ -6,13 +6,7 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 
-console.log("OAUTH SERVICE LOADED");
 
-console.log({
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  secret: process.env.GOOGLE_CLIENT_SECRET ? "exists" : "missing",
-  redirect: process.env.GOOGLE_REDIRECT_URI
-});
 
 
 const client = new OAuth2Client({
@@ -22,6 +16,18 @@ const client = new OAuth2Client({
 });
 
 
+export const getGoogleAuthUrl = () => {
+
+  return client.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "openid",
+      "email",
+      "profile"
+    ]
+  });
+
+};
 
 export const getGoogleUser = async (code) => {
 

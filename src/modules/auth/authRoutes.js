@@ -7,6 +7,7 @@ import {
   resetPassword
 } from "./authControllers.js";
 import {
+  googleLogin,
   googleCallback,
   completeGoogleRegister
 } from "./oauthController.js";
@@ -18,6 +19,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.get("/google", googleLogin);
 router.get("/google/callback", googleCallback);
 router.post("/google/complete", completeGoogleRegister);
 router.get("/facebook/callback", facebookCallback);

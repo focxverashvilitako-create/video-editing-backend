@@ -22,7 +22,8 @@ Body:
 Response:
 { 
   "token": "string",
-   "user:{"id": "uuid",
+   "user:{
+    "id": "uuid",
   "first_name": "string",
   "last_name": "string",
   "email": "string",
@@ -35,7 +36,7 @@ Response:
 Login API
 
 Method:
-Post
+POST
 
 routes:
 /auth/login
@@ -65,7 +66,7 @@ Response:
 forgot-password API
 
 Method:
-Post
+POST
 
 route:
 /auth/forgot-password
@@ -86,7 +87,7 @@ Response:
 Reset-password API
 
 Method:
-Post
+POST
 
 route:
 /auth/reset-password
@@ -160,6 +161,22 @@ Authorization: Bearer JWT_TOKEN
   }
 }
 
+  Google login start API
+
+  Method: 
+  Get
+
+  route:
+  /auth/google
+
+  Response:
+  Redirect to Google login page.
+
+
+
+
+
+
 Google login API
 
 
@@ -183,7 +200,6 @@ code: string (required)
 ## 1. Registration/Login completed
 
 {
-  "message": "Registration completed",
   "token": "JWT_TOKEN",
   "user": {}
 }
@@ -220,4 +236,66 @@ Response:
   "message": "Registration completed",
   "token": "JWT_TOKEN",
   "user": {}
+}
+
+
+Facebook registration start API:
+
+Method:
+GET
+
+route:
+/auth/facebook
+
+
+Response:
+redirect to facebook login page
+
+
+Facebook login callback API:
+Method:
+GET
+
+route:
+/auth/facebook/callback
+
+Query Parameters:
+
+code: string (required)
+
+
+
+Description:
+Facebook returns authorization code after successful login.
+
+
+
+Possible Responses:
+
+
+## 1. Existing user login successful
+
+
+{
+  "token": "JWT_TOKEN",
+  "user": {
+    "id": "uuid",
+    "first_name": "string",
+    "last_name": "string",
+    "email": "string",
+    "phone": "string",
+    "avatar": "string | null",
+    "role": "string"
+  }
+}
+
+
+
+
+## 2. New Facebook user - phone required
+
+
+{
+  "needsPhone": true,
+  "pendingId": "string"
 }
