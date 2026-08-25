@@ -1,9 +1,9 @@
 export const validateRegister = ({
-  firstname,
-  lastname,
+  firstName,
+  lastName,
   email,
   password,
-  phone,
+  phone
 }) => {
 
   const errors = [];

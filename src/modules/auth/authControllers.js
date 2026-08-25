@@ -7,15 +7,14 @@ export const register = async (req, res) => {
   try {
     validateRegister(req.body);
 
-    const { firstname, lastname, email, password, phone, avatar } = req.body;
+    const { firstName, lastName, email, password, phone } = req.body;
 
     const user = await authService.register(
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       email,
       password,
-      phone,
-      avatar 
+      phone
     );
 
     res.status(201).json({

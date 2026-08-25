@@ -41,8 +41,8 @@ export const register = async (
     RETURNING id, first_name, last_name, email, phone, avatar, role
     `,
     [
-      firstName,
-      lastName,
+      firstname,
+      lastname,
       email,
       hashedPassword,
       phone,
