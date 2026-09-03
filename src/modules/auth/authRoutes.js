@@ -10,8 +10,11 @@ import {
   googleLogin,
   googleCallback,
   completeGoogleRegister
-} from "./oauthController.js";
-import { facebookCallback } from "./facebookController.js";
+} from "./oauthControllers.js";
+import { facebookLogin,
+      facebookCallback,
+      completeFacebookRegister
+     } from "./facebookControllers.js";
 
 const router = express.Router();
 
@@ -22,7 +25,9 @@ router.post("/reset-password", resetPassword);
 router.get("/google", googleLogin);
 router.get("/google/callback", googleCallback);
 router.post("/google/complete", completeGoogleRegister);
+router.get("/facebook", facebookLogin);
 router.get("/facebook/callback", facebookCallback);
+router.post("/facebook/complete", completeFacebookRegister);
 
 export default router;
 

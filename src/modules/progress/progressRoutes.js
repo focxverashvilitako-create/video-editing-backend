@@ -4,7 +4,7 @@ import {
   getLessonProgressController,
   updateLessonProgressController,
     checkLessonAccessController
-} from "./progressController.js";
+} from "./progressControllers.js";
 
 const router = express.Router();
 

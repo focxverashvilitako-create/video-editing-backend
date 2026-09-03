@@ -41,8 +41,8 @@ export const register = async (
     RETURNING id, first_name, last_name, email, phone, avatar, role
     `,
     [
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       email,
       hashedPassword,
       phone,
@@ -124,8 +124,8 @@ export const login = async (
     token,
     user: {
       id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      firstName: user.first_name,
+      lastName: user.last_name,
       email: user.email,
       phone: user.phone,
       avatar: user.avatar,

@@ -3,7 +3,7 @@ import {
   getGoogleAuthUrl,
   getGoogleUser,
   handleGoogleLogin
-} from "./oauthService.js";
+} from "./oauthServices.js";
 import jwt from "jsonwebtoken";
 
 export const googleLogin = (req, res) => {

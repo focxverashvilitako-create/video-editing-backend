@@ -6,7 +6,7 @@ export const enrollUserInGroup = async (userId, groupId) => {
   try {
     await client.query("BEGIN");
 
-    // 1. Check group and lock the row
+   
     const groupResult = await client.query(
       `
       SELECT *
@@ -23,7 +23,7 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("Live group not found");
     }
 
-    // 2. Check group status
+   
     if (
       group.status !== "upcoming" &&
       group.status !== "active"
@@ -31,7 +31,7 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("Enrollment is not available for this group");
     }
 
-    // 3. Check if user is already enrolled
+    
     const existingMemberResult = await client.query(
       `
       SELECT *
@@ -46,12 +46,12 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("User is already enrolled in this group");
     }
 
-    // 4. Check available seats
+    
     if (group.current_students >= group.max_students) {
       throw new Error("Live group is full");
     }
 
-    // 5. Create enrollment
+    
     const memberResult = await client.query(
       `
       INSERT INTO live_group_members (
@@ -65,7 +65,7 @@ export const enrollUserInGroup = async (userId, groupId) => {
       [groupId, userId]
     );
 
-    // 6. Increase current students
+    
     await client.query(
       `
       UPDATE live_groups

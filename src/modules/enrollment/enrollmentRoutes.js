@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   enrollUserInGroupController
-} from "./enrollmentController.js";
+} from "./enrollmentControllers.js";
 
 const router = express.Router();
 

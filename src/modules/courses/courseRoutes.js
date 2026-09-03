@@ -6,7 +6,7 @@ import {
   getCourseController,
   updateCourseController,
   deleteCourseController
-} from "./courseController.js";
+} from "./courseControllers.js";
 
 
 const router = express.Router();

@@ -2,7 +2,7 @@ import {
   getLessonProgress,
   updateLessonProgress,
   checkLessonAccess
-} from "./progressService.js";
+} from "./progressServices.js";
 
 
 // GET LESSON PROGRESS

@@ -1,7 +1,7 @@
 import pool from "../../config/db.js";
 
 
-// სტუდენტების ზრდა ამ თვეში %
+
 const getStudentGrowth = async () => {
 
   const result = await pool.query(
@@ -62,7 +62,7 @@ const getStudentGrowth = async () => {
 export const getAdminDashboardData = async () => {
 
 
-  // სულ სტუდენტები
+ 
 
   const totalStudents = await pool.query(
     `
@@ -74,14 +74,14 @@ export const getAdminDashboardData = async () => {
 
 
 
-  // სტუდენტების ზრდა
+
 
   const studentGrowth = await getStudentGrowth();
 
 
 
 
-  // კურსების სტატისტიკა
+  
 
   const CourseStats = await pool.query(
     `
@@ -101,7 +101,7 @@ export const getAdminDashboardData = async () => {
 
 
 
-  // ყველა live ჯგუფი
+
 
   const currentGroups = await pool.query(
     `
@@ -113,7 +113,7 @@ export const getAdminDashboardData = async () => {
 
 
 
-  // ამ მომენტში მიმდინარე ჯგუფები
+
 
   const nowGroups = await pool.query(
     `
@@ -128,7 +128,7 @@ export const getAdminDashboardData = async () => {
 
 
 
-  // ამ თვის შემოსავალი
+  
 
   const monthlyRevenue = await pool.query(
     `
@@ -149,7 +149,7 @@ export const getAdminDashboardData = async () => {
 
 
 
-  // ბოლო დამატებული მომხმარებლები
+  
 
   const addedUsers = await pool.query(
     `

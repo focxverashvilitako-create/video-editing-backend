@@ -1,14 +1,19 @@
-URL: http://localhost:3000
 
-Register API
+Base URL:http://localhost:3000
 
-Method:
+---
+
+## Register API
+
+**Method:**
+
 POST
 
-Route:
+**Route:**
+
 /auth/register
 
-Body:
+### Body
 
 {
   "firstName": "string",
@@ -18,39 +23,253 @@ Body:
   "phone": "string",
   "avatar": "string | null"
 }
+```
 
-Response:
-{ 
-  "token": "string",
-   "user:{
-    "id": "uuid",
-  "first_name": "string",
-  "last_name": "string",
-  "email": "string",
-  "phone": "string",
-  "avatar": "string | null",
-  "role": "string 
+### Response
+
+```json
+{
+  "message": "User registered",
+  "user": {
+    "token": "string",
+    "user": {
+      "id": "uuid",
+      "first_name": "string",
+      "last_name": "string",
+      "email": "string",
+      "phone": "string",
+      "avatar": "string | null",
+      "role": "string"
+    }
   }
 }
+```
 
-Login API
+---
 
-Method:
+## Login API
+
+**Method:**
+
 POST
 
-routes:
+**Route:**
+
 /auth/login
 
+### Body
 
-Body:
+
 {
   "email": "string",
   "password": "string"
 }
+```
 
-Response:
+### Response
+
+
+{
+  "message": "Login successful",
+  "token": "string"
+}
+```
+
+---
+
+## Forgot Password API
+
+**Method:**
+
+POST
+
+**Route:**
+
+/auth/forgot-password
+
+### Body
+
+{
+  "email": "string"
+}
+```
+
+### Response
+
+
+{
+  "message": "Password reset token created",
+  "token": "string"
+}
+```
+
+The reset token expires after **15 minutes**.
+
+---
+
+## Reset Password API
+
+**Method:**
+
+POST
+
+**Route:**
+
+/auth/reset-password
+
+### Body
+
 {
   "token": "string",
+  "newPassword": "string"
+}
+```
+
+### Response
+
+
+{
+  "message": "Password changed successfully"
+}
+```
+
+---
+
+# GOOGLE OAUTH
+
+## Google Login Start API
+
+**Method:**
+
+GET
+
+**Route:**
+
+/auth/google
+
+### Response
+
+Redirects the user to the Google login page.
+
+---
+
+## Google Login Callback API
+
+**Method:**
+
+GET
+
+**Route:**
+
+/auth/google/callback
+
+### Query Parameters
+
+```text
+code: string (required)
+```
+
+### Possible Responses
+
+### 1. Existing Google User
+
+If the Google account is already registered:
+
+
+{
+  "token": "JWT_TOKEN",
+  "user": {}
+}
+```
+
+### 2. New Google User
+
+If the Google account is not registered:
+
+
+{
+  "needsPhone": true,
+  "pendingId": "uuid"
+}
+```
+
+
+
+---
+
+## Complete Google Registration API
+
+**Method:**
+
+POST
+
+**Route:**
+
+/auth/google/complete
+
+### Body
+
+
+{
+  "pendingId": "uuid",
+  "phone": "string"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Registration completed",
+  "token": "JWT_TOKEN",
+  "user": {}
+}
+```
+
+---
+
+# FACEBOOK OAUTH
+
+## Facebook Login Start API
+
+**Method:**
+
+GET
+
+**Route:**
+
+/auth/facebook
+
+### Response
+
+Redirects the user to the Facebook login page.
+
+---
+
+## Facebook Login Callback API
+
+**Method:**
+
+GET
+
+**Route:**
+
+/auth/facebook/callback
+
+### Query Parameters
+
+```text
+code: string (required)
+```
+
+
+
+### Possible Responses
+
+### 1. Existing Facebook User
+
+{
+  "token": "JWT_TOKEN",
   "user": {
     "id": "uuid",
     "first_name": "string",
@@ -61,244 +280,51 @@ Response:
     "role": "string"
   }
 }
+```
 
+### 2. New Facebook User
 
-forgot-password API
+If the Facebook account is not registered:
 
-Method:
-POST
-
-route:
-/auth/forgot-password
-
-
-Body:
-{
-  "email": "string"
-}
-
-
-Response:
-{
-  "token": "string"
-}
-
-
-Reset-password API
-
-Method:
-POST
-
-route:
-/auth/reset-password
-
-Body:
-{
-  "token": "string",
-  "newPassword": "string"
-}
-
-
-Response:
-{
-  "message": "Password reset successful"
-}
-
-
-Profile API
-
-Method:
-GET
-
-route:
-/users/profile
-
-
-Authentication:
-Required
-
- Headers:
-
-Authorization: Bearer JWT_TOKEN
-
-
- Response API
-
-{
-  "message": "profile works",
-  "user": {
-    "id": "string",
-    "email": "string",
-    "role": "string"
-  }
-}
-
-
-Dashboard API
-
-Method:
-GET
-
-route:
-/users/dashboard
-
-Authentication:
-Required
-
-Headers:
-
-Authorization: Bearer JWT_TOKEN
-
-
- Response:
-
-{
-  "message": "dashboard works",
-  "user": {
-    "id": "string",
-    "email": "string",
-    "role": "string"
-  }
-}
-
-  Google login start API
-
-  Method: 
-  Get
-
-  route:
-  /auth/google
-
-  Response:
-  Redirect to Google login page.
-
-
-
-
-
-
-Google login API
-
-
-
-Method:
-GET
-
-route:
-/auth/google/callback
-
-
- Query Parameters:
-
-code: string (required)
-
-
-
-
- Possible Responses:
-
-## 1. Registration/Login completed
-
-{
-  "token": "JWT_TOKEN",
-  "user": {}
-}
-
-
-## 2. Phone number required
 
 {
   "needsPhone": true,
-  "pendingId": "string"
+  "pendingId": "uuid"
 }
+```
 
+---
 
-Complete google registration API:
+## Complete Facebook Registration API
 
-Method:
+**Method:**
+
 POST
 
-route:
-/auth/google/complete
+**Route:**
 
+/auth/facebook/complete
 
-Body:
+### Body
 
 {
-  "pendingId": "string",
+  "pendingId": "uuid",
   "phone": "string"
 }
+```
 
+### Response
 
-Response:
 
 {
   "message": "Registration completed",
   "token": "JWT_TOKEN",
   "user": {}
 }
-
-
-Facebook registration start API:
-
-Method:
-GET
-
-route:
-/auth/facebook
-
-
-Response:
-redirect to facebook login page
-
-
-Facebook login callback API:
-Method:
-GET
-
-route:
-/auth/facebook/callback
-
-Query Parameters:
-
-code: string (required)
+```
 
 
 
-Description:
-Facebook returns authorization code after successful login.
-
-
-
-Possible Responses:
-
-
-## 1. Existing user login successful
-
-
-{
-  "token": "JWT_TOKEN",
-  "user": {
-    "id": "uuid",
-    "first_name": "string",
-    "last_name": "string",
-    "email": "string",
-    "phone": "string",
-    "avatar": "string | null",
-    "role": "string"
-  }
-}
-
-
-
-
-## 2. New Facebook user - phone required
-
-
-{
-  "needsPhone": true,
-  "pendingId": "string"
-}
 
 
 

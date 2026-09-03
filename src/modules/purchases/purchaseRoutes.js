@@ -5,7 +5,7 @@ import {
   getUserPurchasesController,
   getPurchaseByIdController,
   checkCourseAccessController
-} from "./purchaseController.js";
+} from "./purchaseControllers.js";
 
 const router = express.Router();
 

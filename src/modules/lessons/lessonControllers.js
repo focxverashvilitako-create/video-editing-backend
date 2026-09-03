@@ -4,7 +4,7 @@ import {
   getLessonById,
   updateLesson,
   deleteLesson
-} from "./lessonService.js";
+} from "./lessonServices.js";
 
 
 export const createLessonController = async (req, res) => {

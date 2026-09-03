@@ -1,7 +1,8 @@
+import pool from "../../config/db.js";
 import {
  getFacebookUser,
  handleFacebookLogin
-} from "./facebookService.js";
+} from "./facebookServices.js";
 
 
 export const facebookLogin = (req, res) => {
@@ -56,7 +57,7 @@ export const completeFacebookRegister = async(req,res)=>{
 try{
     
     const{
-        pendingid,
+        pendingId,
         phone
     }=req.body;
 

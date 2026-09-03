@@ -1,7 +1,7 @@
 import {
   getAdminDashboardData, 
   getStudentGrowth
-} from "./admin.service.js";
+} from "./admin.services.js";
 
 
 export const adminDashboard = async (req, res) => {

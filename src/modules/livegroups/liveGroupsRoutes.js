@@ -6,7 +6,7 @@ import {
   getLiveGroupByIdController,
   updateLiveGroupController,
   deleteLiveGroupController
-} from "./liveGroupsController.js";
+} from "./liveGroupsControllers.js";
 
 const router = express.Router();
 

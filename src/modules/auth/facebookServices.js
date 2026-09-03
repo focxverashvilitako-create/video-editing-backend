@@ -32,15 +32,16 @@ export const getFacebookUser = async (code) => {
   const userResponse = await fetch(userURL);
 
   const userData = await userResponse.json();
-  if(!userResponse.ok){
-    throw new Error(
-      userData.error?.message || "Facebook user error"
-    );
+  
+  if (!userResponse.ok) {
+  throw new Error(
+    userData.error?.message || "Facebook user error"
+  );
+}
 
-    if(!userData.email){
+if (!userData.email) {
   throw new Error("Facebook email not provided");
 }
-  }
 
   return {
     facebookId: userData.id,
@@ -66,7 +67,7 @@ export const handleFacebookLogin = async (facebookUser) => {
 
 
 
-  // ვამოწმებთ უკვე არსებობს თუ არა user
+  
 
   let result = await pool.query(
     `

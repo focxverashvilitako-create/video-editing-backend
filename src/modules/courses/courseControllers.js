@@ -4,7 +4,7 @@ import {
   getCourseById,
   updateCourse,
   deleteCourse
-} from "./courseService.js";
+} from "./courseServices.js";
 
 
 export const createCourseController = async (req, res) => {

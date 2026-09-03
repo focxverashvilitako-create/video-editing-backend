@@ -4,7 +4,7 @@ import {
   getLiveGroupById,
   updateLiveGroup,
   deleteLiveGroup
-} from "./liveGroupsService.js";
+} from "./liveGroupsServices.js";
 
 
 // CREATE

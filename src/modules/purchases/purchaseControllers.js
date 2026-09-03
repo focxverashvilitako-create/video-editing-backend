@@ -3,7 +3,7 @@ import {
   getUserPurchases,
   getPurchaseById,
   checkCourseAccess
-} from "./purchaseService.js";
+} from "./purchaseServices.js";
 
 
 // CREATE PURCHASE
