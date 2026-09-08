@@ -5,7 +5,6 @@ import {
  profile,
  dashboard
 } from "./userControllers.js";
-import { auth } from "google-auth-library";
 
 const router = express.Router();
 

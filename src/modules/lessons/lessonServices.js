@@ -1,15 +1,30 @@
 import pool from "../../config/db.js";
 
-export const createLesson = async (
-  sectionid,
+
+export const createLesson = async ({
+  section_id,
   title,
   description,
-  videourl,
+  video_url,
   duration,
   provider,
-  ispreview,
-  sortorder
-) => {
+  is_preview,
+  sort_order
+}) => {
+
+  
+  const sectionResult = await pool.query(
+    `
+    SELECT id
+    FROM course_sections
+    WHERE id = $1
+    `,
+    [section_id]
+  );
+
+  if (sectionResult.rows.length === 0) {
+    throw new Error("Course section not found");
+  }
 
   const result = await pool.query(
     `
@@ -29,33 +44,37 @@ export const createLesson = async (
     RETURNING *
     `,
     [
-      sectionid,
-      title,
+      section_id,
+      title.trim(),
       description,
-      videourl,
+      video_url,
       duration,
       provider,
-      ispreview,
-      sortorder
+      is_preview,
+      sort_order
     ]
   );
 
   return result.rows[0];
 };
 
-  export const getAllLessons = async () => {
+
+
+export const getAllLessons = async () => {
   const result = await pool.query(
     `
     SELECT *
     FROM lessons
-    ORDER BY sort_order ASC
+    ORDER BY sort_order ASC, id ASC
     `
   );
 
   return result.rows;
-}
-export const getLessonById = async (id) => {
+};
 
+
+
+export const getLessonById = async (id) => {
   const result = await pool.query(
     `
     SELECT *
@@ -70,55 +89,75 @@ export const getLessonById = async (id) => {
 
 
 
-export const updateLesson = async (
-  id,
-  section_id,
-  title,
-  description,
-  video_url,
-  duration,
-  provider,
-  is_preview,
-  sort_order
-) => {
+export const updateLesson = async (id, fields) => {
+  const allowedFields = {
+    section_id: "section_id",
+    title: "title",
+    description: "description",
+    video_url: "video_url",
+    duration: "duration",
+    provider: "provider",
+    is_preview: "is_preview",
+    sort_order: "sort_order"
+  };
+
+  const updates = [];
+  const values = [];
+
+  for (const [key, value] of Object.entries(fields)) {
+    if (
+      value !== undefined &&
+      allowedFields[key]
+    ) {
+      updates.push(
+        `${allowedFields[key]} = $${values.length + 1}`
+      );
+
+      values.push(
+        key === "title" && typeof value === "string"
+          ? value.trim()
+          : value
+      );
+    }
+  }
+
+  if (updates.length === 0) {
+    return null;
+  }
+
+  
+  if (fields.section_id !== undefined) {
+    const sectionResult = await pool.query(
+      `
+      SELECT id
+      FROM course_sections
+      WHERE id = $1
+      `,
+      [fields.section_id]
+    );
+
+    if (sectionResult.rows.length === 0) {
+      throw new Error("Course section not found");
+    }
+  }
+
+  values.push(id);
 
   const result = await pool.query(
     `
     UPDATE lessons
-    SET
-      section_id = $1,
-      title = $2,
-      description = $3,
-      video_url = $4,
-      duration = $5,
-      provider = $6,
-      is_preview = $7,
-      sort_order = $8
-
-    WHERE id = $9
-
+    SET ${updates.join(", ")}
+    WHERE id = $${values.length}
     RETURNING *
     `,
-    [
-      section_id,
-      title,
-      description,
-      video_url,
-      duration,
-      provider,
-      is_preview,
-      sort_order,
-      id
-    ]
+    values
   );
 
   return result.rows[0];
 };
 
 
-
 export const deleteLesson = async (id) => {
-
   const result = await pool.query(
     `
     DELETE FROM lessons
@@ -130,5 +169,3 @@ export const deleteLesson = async (id) => {
 
   return result.rows[0];
 };
-
-  

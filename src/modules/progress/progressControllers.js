@@ -4,13 +4,22 @@ import {
   checkLessonAccess
 } from "./progressServices.js";
 
+import {
+  validateLessonProgressParams,
+  validateUpdateLessonProgress
+} from "./progressValidations.js";
 
-// GET LESSON PROGRESS
+
 export const getLessonProgressController = async (req, res) => {
 
   try {
 
     const { userId, lessonId } = req.params;
+
+    validateLessonProgressParams({
+      userId,
+      lessonId
+    });
 
     const progress = await getLessonProgress(
       userId,
@@ -40,7 +49,6 @@ export const getLessonProgressController = async (req, res) => {
 };
 
 
-// UPDATE LESSON PROGRESS
 export const updateLessonProgressController = async (req, res) => {
 
   try {
@@ -52,26 +60,12 @@ export const updateLessonProgressController = async (req, res) => {
       watchedPercent
     } = req.body;
 
-    if (
-      lastPosition === undefined ||
-      watchedPercent === undefined
-    ) {
-      return res.status(400).json({
-        message: "lastPosition and watchedPercent are required"
-      });
-    }
-
-    if (lastPosition < 0) {
-      return res.status(400).json({
-        message: "lastPosition cannot be negative"
-      });
-    }
-
-    if (watchedPercent < 0 || watchedPercent > 100) {
-      return res.status(400).json({
-        message: "watchedPercent must be between 0 and 100"
-      });
-    }
+    validateUpdateLessonProgress({
+      userId,
+      lessonId,
+      lastPosition,
+      watchedPercent
+    });
 
     const progress = await updateLessonProgress(
       userId,
@@ -96,11 +90,17 @@ export const updateLessonProgressController = async (req, res) => {
   }
 };
 
+
 export const checkLessonAccessController = async (req, res) => {
 
   try {
 
     const { userId, lessonId } = req.params;
+
+    validateLessonProgressParams({
+      userId,
+      lessonId
+    });
 
     const hasAccess = await checkLessonAccess(
       userId,

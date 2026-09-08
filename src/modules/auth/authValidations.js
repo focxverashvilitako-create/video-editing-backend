@@ -8,11 +8,11 @@ export const validateRegister = ({
 
   const errors = [];
 
-  if (!firstname || firstname.length < 2) {
+  if (!firstName || firstName.length < 2) {
     errors.push("Invalid first name");
   }
 
-  if (!lastname || lastname.length < 2) {
+  if (!lastName || lastName.length < 2) {
     errors.push("Invalid last name");
   }
 

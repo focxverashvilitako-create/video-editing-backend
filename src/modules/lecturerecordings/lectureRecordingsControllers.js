@@ -7,6 +7,11 @@ import {
   deleteLectureRecording
 } from "./lectureRecordingsServices.js";
 
+import {
+  validateCreateLectureRecording,
+  validateUpdateLectureRecording
+} from "./lectureRecordingsValidations.js";
+
 export const createLectureRecordingController = async (req, res) => {
   try {
     const {
@@ -16,11 +21,12 @@ export const createLectureRecordingController = async (req, res) => {
       lesson_date
     } = req.body;
 
-    if (!group_id || !title) {
-      return res.status(400).json({
-        message: "group_id and title are required"
-      });
-    }
+    validateCreateLectureRecording({
+      group_id,
+      title,
+      video_url,
+      lesson_date
+    });
 
     const recording = await createLectureRecording(
       group_id,
@@ -117,11 +123,12 @@ export const updateLectureRecordingController = async (req, res) => {
       lesson_date
     } = req.body;
 
-    if (!group_id || !title) {
-      return res.status(400).json({
-        message: "group_id and title are required"
-      });
-    }
+    validateUpdateLectureRecording({
+      group_id,
+      title,
+      video_url,
+      lesson_date
+    });
 
     const recording = await updateLectureRecording(
       id,

@@ -71,44 +71,56 @@ export const getCourseById = async (id) => {
 };
 
 
-export const updateCourse = async (
-  id,
-  {
-    title,
-    description,
-    type,
-    price,
-    thumbnail,
-    promoVideo,
-    isActive
+export const updateCourse = async (id, fields) => {
+
+  const allowedFields = {
+    title: "title",
+    description: "description",
+    type: "type",
+    price: "price",
+    thumbnail: "thumbnail",
+    promoVideo: "promo_video",
+    isActive: "is_active"
+  };
+
+
+  const updates = [];
+  const values = [];
+
+
+  for (const [key, value] of Object.entries(fields)) {
+
+    if (value !== undefined && allowedFields[key]) {
+
+      updates.push(
+        `${allowedFields[key]} = $${values.length + 1}`
+      );
+
+      values.push(value);
+
+    }
+
   }
-) => {
+
+
+  if (updates.length === 0) {
+    return null;
+  }
+
+
+  values.push(id);
+
 
   const result = await pool.query(
     `
     UPDATE courses
-    SET
-      title = $1,
-      description = $2,
-      type = $3,
-      price = $4,
-      thumbnail = $5,
-      promo_video = $6,
-      is_active = $7
-    WHERE id = $8
+    SET ${updates.join(", ")}
+    WHERE id = $${values.length}
     RETURNING *
     `,
-    [
-      title,
-      description,
-      type,
-      price,
-      thumbnail,
-      promoVideo,
-      isActive,
-      id
-    ]
+    values
   );
+
 
   return result.rows[0];
 };

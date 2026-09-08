@@ -5,11 +5,18 @@ import {
   checkCourseAccess
 } from "./purchaseServices.js";
 
+import {
+  validateCreatePurchase,
+  validateUserPurchases,
+  validatePurchaseId,
+  validateCourseAccess
+} from "./purchaseValidations.js";
 
-// CREATE PURCHASE
 export const createPurchaseController = async (req, res) => {
   try {
     const { userId, courseId, paymentId } = req.body;
+
+    validateCreatePurchase({ userId, courseId, paymentId });
 
     const purchase = await createPurchase(
       userId,
@@ -32,10 +39,10 @@ export const createPurchaseController = async (req, res) => {
 };
 
 
-// GET USER PURCHASES
 export const getUserPurchasesController = async (req, res) => {
   try {
     const { userId } = req.params;
+    validateUserPurchases({ userId });
 
     const purchases = await getUserPurchases(userId);
 
@@ -54,10 +61,12 @@ export const getUserPurchasesController = async (req, res) => {
 };
 
 
-// GET PURCHASE BY ID
+
 export const getPurchaseByIdController = async (req, res) => {
   try {
     const { id } = req.params;
+
+    validatePurchaseId({ id });
 
     const purchase = await getPurchaseById(id);
 
@@ -82,10 +91,11 @@ export const getPurchaseByIdController = async (req, res) => {
 };
 
 
-// CHECK COURSE ACCESS
 export const checkCourseAccessController = async (req, res) => {
   try {
     const { userId, courseId } = req.params;
+
+    validateCourseAccess({ userId, courseId });
 
     const hasAccess = await checkCourseAccess(
       userId,

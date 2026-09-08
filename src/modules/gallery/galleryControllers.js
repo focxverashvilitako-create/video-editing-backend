@@ -6,21 +6,31 @@ import {
   deleteGalleryItem
 } from "./galleryServices.js";
 
+import {
+  validateCreateGalleryItem,
+  validateUpdateGalleryItem,
+  validateGalleryItemId
+} from "./galleryValidations.js";
+
+
+// CREATE
 export const createGalleryItemController = async (req, res) => {
+
   try {
-    const { title, media_type, file_url } = req.body;
 
-    if (!title || !media_type || !file_url) {
-      return res.status(400).json({
-        message: "title, media_type and file_url are required"
-      });
-    }
+    const {
+      title,
+      media_type,
+      file_url
+    } = req.body;
 
-    if (!["photo", "video"].includes(media_type)) {
-      return res.status(400).json({
-        message: "media_type must be photo or video"
-      });
-    }
+
+    validateCreateGalleryItem({
+      title,
+      media_type,
+      file_url
+    });
+
 
     const item = await createGalleryItem(
       title,
@@ -28,107 +38,176 @@ export const createGalleryItemController = async (req, res) => {
       file_url
     );
 
+
     res.status(201).json({
       message: "Gallery item created successfully",
       item
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to create gallery item"
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
-export const getAllGalleryItemsController = async (req, res) => {
+
+// GET ALL
+export const getAllGalleryItemsController = async (
+  req,
+  res
+) => {
+
   try {
+
     const items = await getAllGalleryItems();
 
+
     res.status(200).json({
+      message: "Gallery items fetched successfully",
       items
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to get gallery items"
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
-export const getGalleryItemByIdController = async (req, res) => {
+
+// GET BY ID
+export const getGalleryItemByIdController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { id } = req.params;
+
+
+    validateGalleryItemId({
+      id
+    });
+
 
     const item = await getGalleryItemById(id);
 
+
     if (!item) {
       return res.status(404).json({
         message: "Gallery item not found"
       });
     }
 
+
     res.status(200).json({
+      message: "Gallery item fetched successfully",
       item
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to get gallery item"
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
-export const updateGalleryItemController = async (req, res) => {
+
+// UPDATE
+export const updateGalleryItemController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { id } = req.params;
-    const { title, media_type, file_url } = req.body;
 
-    if (!title || !media_type || !file_url) {
-      return res.status(400).json({
-        message: "title, media_type and file_url are required"
-      });
-    }
-
-    if (!["photo", "video"].includes(media_type)) {
-      return res.status(400).json({
-        message: "media_type must be photo or video"
-      });
-    }
-
-    const item = await updateGalleryItem(
-      id,
+    const {
       title,
       media_type,
       file_url
+    } = req.body;
+
+
+    validateGalleryItemId({
+      id
+    });
+
+
+    validateUpdateGalleryItem({
+      title,
+      media_type,
+      file_url
+    });
+
+
+    const item = await updateGalleryItem(
+      id,
+      {
+        title,
+        media_type,
+        file_url
+      }
     );
+
 
     if (!item) {
       return res.status(404).json({
         message: "Gallery item not found"
       });
     }
+
 
     res.status(200).json({
       message: "Gallery item updated successfully",
       item
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to update gallery item"
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
-export const deleteGalleryItemController = async (req, res) => {
+
+// DELETE
+export const deleteGalleryItemController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { id } = req.params;
 
+
+    validateGalleryItemId({
+      id
+    });
+
+
     const item = await deleteGalleryItem(id);
+
 
     if (!item) {
       return res.status(404).json({
@@ -136,15 +215,19 @@ export const deleteGalleryItemController = async (req, res) => {
       });
     }
 
+
     res.status(200).json({
       message: "Gallery item deleted successfully",
       item
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to delete gallery item"
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };

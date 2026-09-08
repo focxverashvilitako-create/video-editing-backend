@@ -1,5 +1,7 @@
 import pool from "../../config/db.js";
 
+
+// CREATE
 export const createSettings = async (
   site_name,
   phone,
@@ -9,6 +11,7 @@ export const createSettings = async (
   instagram,
   youtube
 ) => {
+
   const result = await pool.query(
     `
     INSERT INTO settings
@@ -21,78 +24,112 @@ export const createSettings = async (
       instagram,
       youtube
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    VALUES
+    ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
     `,
     [
-      site_name,
-      phone,
-      email,
-      address,
-      facebook,
-      instagram,
-      youtube
+      site_name.trim(),
+      phone.trim(),
+      email.trim(),
+      address.trim(),
+      facebook ?? null,
+      instagram ?? null,
+      youtube ?? null
     ]
   );
+
 
   return result.rows[0];
 };
 
 
+// GET ALL
 export const getSettings = async () => {
+
   const result = await pool.query(
-    "SELECT * FROM settings ORDER BY id"
+    `
+    SELECT *
+    FROM settings
+    ORDER BY id ASC
+    `
   );
+
 
   return result.rows;
 };
 
 
+// UPDATE
 export const updateSettings = async (
   id,
-  site_name,
-  phone,
-  email,
-  address,
-  facebook,
-  instagram,
-  youtube
+  fields
 ) => {
+
+  const allowedFields = {
+    site_name: "site_name",
+    phone: "phone",
+    email: "email",
+    address: "address",
+    facebook: "facebook",
+    instagram: "instagram",
+    youtube: "youtube"
+  };
+
+
+  const updates = [];
+  const values = [];
+
+
+  for (const [key, value] of Object.entries(fields)) {
+
+    if (
+      value !== undefined &&
+      allowedFields[key]
+    ) {
+
+      updates.push(
+        `${allowedFields[key]} = $${values.length + 1}`
+      );
+
+
+      values.push(
+        typeof value === "string"
+          ? value.trim()
+          : value
+      );
+    }
+  }
+
+
+  if (updates.length === 0) {
+    return null;
+  }
+
+
+  values.push(id);
+
+
   const result = await pool.query(
     `
     UPDATE settings
-    SET
-      site_name = $1,
-      phone = $2,
-      email = $3,
-      address = $4,
-      facebook = $5,
-      instagram = $6,
-      youtube = $7
-    WHERE id = $8
+    SET ${updates.join(", ")}
+    WHERE id = $${values.length}
     RETURNING *
     `,
-    [
-      site_name,
-      phone,
-      email,
-      address,
-      facebook,
-      instagram,
-      youtube,
-      id
-    ]
+    values
   );
 
-  if (result.rows.length === 0) {
-    throw new Error("Settings not found");
-  }
 
   return result.rows[0];
 };
 
 
-export const deleteSettings = async (id) => {
+// DELETE
+export const deleteSettings = async (
+  id
+) => {
+
   const result = await pool.query(
     `
     DELETE FROM settings
@@ -102,9 +139,6 @@ export const deleteSettings = async (id) => {
     [id]
   );
 
-  if (result.rows.length === 0) {
-    throw new Error("Settings not found");
-  }
 
   return result.rows[0];
 };

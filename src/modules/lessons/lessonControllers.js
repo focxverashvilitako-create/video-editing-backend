@@ -6,11 +6,13 @@ import {
   deleteLesson
 } from "./lessonServices.js";
 
+import {
+  validateCreateLesson,
+  validateUpdateLesson
+} from "./lessonValidations.js";
 
 export const createLessonController = async (req, res) => {
-
   try {
-
     const {
       section_id,
       title,
@@ -22,7 +24,7 @@ export const createLessonController = async (req, res) => {
       sort_order
     } = req.body;
 
-    const lesson = await createLesson(
+    validateCreateLesson({
       section_id,
       title,
       description,
@@ -31,7 +33,18 @@ export const createLessonController = async (req, res) => {
       provider,
       is_preview,
       sort_order
-    );
+    });
+
+    const lesson = await createLesson({
+      section_id,
+      title,
+      description,
+      video_url,
+      duration,
+      provider,
+      is_preview,
+      sort_order
+    });
 
     res.status(201).json({
       message: "Lesson created successfully",
@@ -39,22 +52,17 @@ export const createLessonController = async (req, res) => {
     });
 
   } catch (error) {
-
     console.log(error);
 
     res.status(400).json({
       message: error.message
     });
-
   }
 };
 
 
-
 export const getAllLessonsController = async (req, res) => {
-
   try {
-
     const lessons = await getAllLessons();
 
     res.status(200).json({
@@ -62,31 +70,25 @@ export const getAllLessonsController = async (req, res) => {
     });
 
   } catch (error) {
-
     console.log(error);
 
     res.status(400).json({
       message: error.message
     });
-
   }
 };
 
 
 export const getLessonByIdController = async (req, res) => {
-
   try {
-
     const { id } = req.params;
 
     const lesson = await getLessonById(id);
 
     if (!lesson) {
-
       return res.status(404).json({
         message: "Lesson not found"
       });
-
     }
 
     res.status(200).json({
@@ -95,21 +97,17 @@ export const getLessonByIdController = async (req, res) => {
     });
 
   } catch (error) {
-
     console.log(error);
 
     res.status(400).json({
       message: error.message
     });
-
   }
 };
 
 
 export const updateLessonController = async (req, res) => {
-
   try {
-
     const { id } = req.params;
 
     const {
@@ -123,8 +121,7 @@ export const updateLessonController = async (req, res) => {
       sort_order
     } = req.body;
 
-    const lesson = await updateLesson(
-      id,
+    validateUpdateLesson({
       section_id,
       title,
       description,
@@ -133,14 +130,23 @@ export const updateLessonController = async (req, res) => {
       provider,
       is_preview,
       sort_order
-    );
+    });
+
+    const lesson = await updateLesson(id, {
+      section_id,
+      title,
+      description,
+      video_url,
+      duration,
+      provider,
+      is_preview,
+      sort_order
+    });
 
     if (!lesson) {
-
       return res.status(404).json({
         message: "Lesson not found"
       });
-
     }
 
     res.status(200).json({
@@ -149,31 +155,25 @@ export const updateLessonController = async (req, res) => {
     });
 
   } catch (error) {
-
     console.log(error);
 
     res.status(400).json({
       message: error.message
     });
-
   }
 };
 
 
 export const deleteLessonController = async (req, res) => {
-
   try {
-
     const { id } = req.params;
 
     const lesson = await deleteLesson(id);
 
     if (!lesson) {
-
       return res.status(404).json({
         message: "Lesson not found"
       });
-
     }
 
     res.status(200).json({
@@ -181,12 +181,10 @@ export const deleteLessonController = async (req, res) => {
     });
 
   } catch (error) {
-
     console.log(error);
 
     res.status(400).json({
       message: error.message
     });
-
   }
 };

@@ -6,7 +6,7 @@ import {
   getGroupMemberByIdController,
   getMembersByGroupIdController,
   removeMemberFromGroupController,
-} from "./liveGroupMembersController.js";
+} from "./liveGroupMembersControllers.js";
 
 const router = express.Router();
 

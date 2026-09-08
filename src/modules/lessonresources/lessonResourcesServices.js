@@ -45,20 +45,62 @@ export const getResourcesByLessonId = async (lesson_id) => {
   return result.rows;
 };
 
-export const updateLessonResource = async (
-  id,
-  lesson_id,
-  title,
-  file_url
-) => {
+export const updateLessonResource = async (id, fields) => {
+  const allowedFields = {
+    lesson_id: "lesson_id",
+    title: "title",
+    file_url: "file_url"
+  };
+
+  const updates = [];
+  const values = [];
+
+  for (const [key, value] of Object.entries(fields)) {
+    if (
+      value !== undefined &&
+      allowedFields[key]
+    ) {
+      updates.push(
+        `${allowedFields[key]} = $${values.length + 1}`
+      );
+
+      values.push(
+        key === "title" && typeof value === "string"
+          ? value.trim()
+          : value
+      );
+    }
+  }
+
+  if (updates.length === 0) {
+    return null;
+  }
+
+  if (fields.lesson_id !== undefined) {
+    const lessonResult = await pool.query(
+      `
+      SELECT id
+      FROM lessons
+      WHERE id = $1
+      `,
+      [fields.lesson_id]
+    );
+
+    if (lessonResult.rows.length === 0) {
+      throw new Error("Lesson not found");
+    }
+  }
+
+  values.push(id);
+
   const result = await pool.query(
-    `UPDATE lesson_resources
-     SET lesson_id = $1,
-         title = $2,
-         file_url = $3
-     WHERE id = $4
-     RETURNING *`,
-    [lesson_id, title, file_url, id]
+    `
+    UPDATE lesson_resources
+    SET ${updates.join(", ")}
+    WHERE id = $${values.length}
+    RETURNING *
+    `,
+    values
   );
 
   return result.rows[0];

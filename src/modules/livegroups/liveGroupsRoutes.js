@@ -11,35 +11,32 @@ import {
 const router = express.Router();
 
 
-// CREATE
+
 router.post(
   "/",
   createLiveGroupController
 );
 
 
-// GET ALL
 router.get(
   "/",
   getAllLiveGroupsController
 );
 
 
-// GET BY ID
 router.get(
   "/:id",
   getLiveGroupByIdController
 );
 
 
-// UPDATE
+
 router.put(
   "/:id",
   updateLiveGroupController
 );
 
 
-// DELETE
 router.delete(
   "/:id",
   deleteLiveGroupController

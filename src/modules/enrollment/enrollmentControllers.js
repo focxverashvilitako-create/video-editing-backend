@@ -2,17 +2,22 @@ import {
   enrollUserInGroup
 } from "./enrollmentServices.js";
 
+import {
+  validateEnrollment
+} from "./enrollmentValidations.js";
+
 
 export const enrollUserInGroupController = async (req, res) => {
   try {
+    const {
+      userId,
+      groupId
+    } = req.body;
 
-    const { userId, groupId } = req.body;
-
-    if (!userId || !groupId) {
-      return res.status(400).json({
-        message: "userId and groupId are required"
-      });
-    }
+    validateEnrollment({
+      userId,
+      groupId
+    });
 
     const enrollment = await enrollUserInGroup(
       userId,

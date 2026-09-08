@@ -6,6 +6,11 @@ import {
   deleteCourse
 } from "./courseServices.js";
 
+import {
+  validateCreateCourse,
+  validateUpdateCourse
+} from "./courseValidations.js";
+
 
 export const createCourseController = async (req, res) => {
 
@@ -22,22 +27,15 @@ export const createCourseController = async (req, res) => {
     } = req.body;
 
 
-    if (!title || !type || price === undefined) {
-
-      return res.status(400).json({
-        message: "Title, type and price are required"
-      });
-
-    }
-
-
-    if (!["ondemand", "live"].includes(type)) {
-
-      return res.status(400).json({
-        message: "Type must be ondemand or live"
-      });
-
-    }
+    validateCreateCourse({
+      title,
+      description,
+      type,
+      price,
+      thumbnail,
+      promoVideo,
+      isActive
+    });
 
 
     const course = await createCourse({
@@ -61,7 +59,7 @@ export const createCourseController = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({
+    res.status(400).json({
       message: error.message
     });
 
@@ -145,13 +143,15 @@ export const updateCourseController = async (req, res) => {
     } = req.body;
 
 
-    if (!["ondemand", "live"].includes(type)) {
-
-      return res.status(400).json({
-        message: "Type must be ondemand or live"
-      });
-
-    }
+    validateUpdateCourse({
+      title,
+      description,
+      type,
+      price,
+      thumbnail,
+      promoVideo,
+      isActive
+    });
 
 
     const course = await updateCourse(
@@ -186,7 +186,7 @@ export const updateCourseController = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({
+    res.status(400).json({
       message: error.message
     });
 

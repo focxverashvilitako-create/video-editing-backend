@@ -1,8 +1,9 @@
 import pool from "../../config/db.js";
 
-
-// GET LESSON PROGRESS
-export const getLessonProgress = async (userId, lessonId) => {
+export const getLessonProgress = async (
+  userId,
+  lessonId
+) => {
 
   const result = await pool.query(
     `
@@ -19,7 +20,6 @@ export const getLessonProgress = async (userId, lessonId) => {
 };
 
 
-// UPDATE LESSON PROGRESS
 export const updateLessonProgress = async (
   userId,
   lessonId,
@@ -27,7 +27,38 @@ export const updateLessonProgress = async (
   watchedPercent
 ) => {
 
+ 
+  const userResult = await pool.query(
+    `
+    SELECT id
+    FROM users
+    WHERE id = $1
+    `,
+    [userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new Error("User not found");
+  }
+
+
+
+  const lessonResult = await pool.query(
+    `
+    SELECT id
+    FROM lessons
+    WHERE id = $1
+    `,
+    [lessonId]
+  );
+
+  if (lessonResult.rows.length === 0) {
+    throw new Error("Lesson not found");
+  }
+
+
   const completed = watchedPercent >= 100;
+
 
   const result = await pool.query(
     `
@@ -61,11 +92,33 @@ export const updateLessonProgress = async (
   return result.rows[0];
 };
 
-export const checkLessonAccess = async (userId, lessonId) => {
+
+
+export const checkLessonAccess = async (
+  userId,
+  lessonId
+) => {
+
+  const userResult = await pool.query(
+    `
+    SELECT id
+    FROM users
+    WHERE id = $1
+    `,
+    [userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new Error("User not found");
+  }
+
 
   const lessonResult = await pool.query(
     `
-    SELECT section_id, sort_order
+    SELECT
+      id,
+      section_id,
+      sort_order
     FROM lessons
     WHERE id = $1
     `,
@@ -74,22 +127,24 @@ export const checkLessonAccess = async (userId, lessonId) => {
 
   const lesson = lessonResult.rows[0];
 
+
   if (!lesson) {
-    return false;
+    throw new Error("Lesson not found");
   }
 
-  // First lesson is always unlocked
+
   if (lesson.sort_order === 1) {
     return true;
   }
 
-  // Find previous lesson
+
   const previousLessonResult = await pool.query(
     `
     SELECT id
     FROM lessons
     WHERE section_id = $1
       AND sort_order = $2
+    LIMIT 1
     `,
     [
       lesson.section_id,
@@ -97,13 +152,14 @@ export const checkLessonAccess = async (userId, lessonId) => {
     ]
   );
 
-  const previousLesson = previousLessonResult.rows[0];
+  const previousLesson =
+    previousLessonResult.rows[0];
+
 
   if (!previousLesson) {
     return false;
   }
 
-  // Check if previous lesson is completed
   const progressResult = await pool.query(
     `
     SELECT completed
@@ -116,6 +172,7 @@ export const checkLessonAccess = async (userId, lessonId) => {
       previousLesson.id
     ]
   );
+
 
   return progressResult.rows[0]?.completed === true;
 };

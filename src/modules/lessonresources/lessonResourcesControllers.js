@@ -7,15 +7,20 @@ import {
   deleteLessonResource
 } from "./lessonResourcesServices.js";
 
+import {
+  validateCreateLessonResource,
+  validateUpdateLessonResource
+} from "./lessonRecourcesValidations.js";
+
 export const createLessonResourceController = async (req, res) => {
   try {
     const { lesson_id, title, file_url } = req.body;
 
-    if (!lesson_id || !title) {
-      return res.status(400).json({
-        message: "lesson_id and title are required"
-      });
-    }
+    validateCreateLessonResource({
+      lesson_id,
+      title,
+      file_url
+    });
 
     const resource = await createLessonResource(
       lesson_id,
@@ -105,11 +110,11 @@ export const updateLessonResourceController = async (req, res) => {
     const { id } = req.params;
     const { lesson_id, title, file_url } = req.body;
 
-    if (!lesson_id || !title) {
-      return res.status(400).json({
-        message: "lesson_id and title are required"
-      });
-    }
+    validateUpdateLessonResource({
+      lesson_id,
+      title,
+      file_url
+    });
 
     const resource = await updateLessonResource(
       id,

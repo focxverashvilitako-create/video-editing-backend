@@ -3,139 +3,224 @@ import {
   getAllGroupMembers,
   getGroupMemberById,
   getMembersByGroupId,
-  removeMemberFromGroup,
+  removeMemberFromGroup
 } from "./liveGroupMembersServices.js";
+
+import {
+  validateAddMember,
+  validateLiveGroupMemberId,
+  validateGroupId
+} from "./liveGroupMembersValidations.js";
+
 
 
 export const addMemberToGroupController = async (req, res) => {
-  try {
-    const { groupId, userId } = req.body;
 
-    if (!groupId || !userId) {
-      return res.status(400).json({
-        message: "groupId and userId are required",
-      });
-    }
+  try {
+
+    const {
+      groupId,
+      userId
+    } = req.body;
+
+
+    validateAddMember({
+      groupId,
+      userId
+    });
+
 
     const member = await addMemberToGroup({
       groupId,
-      userId,
+      userId
     });
+
 
     res.status(201).json({
       message: "User added to live group successfully",
-      member,
+      member
     });
+
   } catch (error) {
+
     console.error(error);
 
-    if (error.message === "Live group not found") {
+
+    if (
+      error.message === "Live group not found" ||
+      error.message === "User not found"
+    ) {
       return res.status(404).json({
-        message: error.message,
+        message: error.message
       });
     }
 
-    if (error.message === "User not found") {
-      return res.status(404).json({
-        message: error.message,
-      });
-    }
 
-    if (error.message === "User is already a member of this group") {
+    if (
+      error.message ===
+        "User is already a member of this group" ||
+      error.message ===
+        "Live group is full"
+    ) {
       return res.status(409).json({
-        message: error.message,
+        message: error.message
       });
     }
 
-    if (error.message === "Live group is full") {
-      return res.status(409).json({
-        message: error.message,
-      });
-    }
 
-    res.status(500).json({
-      message: "Failed to add user to live group",
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
+export const getAllGroupMembersController = async (
+  req,
+  res
+) => {
 
-export const getAllGroupMembersController = async (req, res) => {
   try {
+
     const members = await getAllGroupMembers();
 
-    res.json(members);
+
+    res.status(200).json({
+      message: "Live group members fetched successfully",
+      members
+    });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to get live group members",
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
 
-export const getGroupMemberByIdController = async (req, res) => {
+
+export const getGroupMemberByIdController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { id } = req.params;
+
+
+    validateLiveGroupMemberId({
+      id
+    });
+
 
     const member = await getGroupMemberById(id);
 
+
     if (!member) {
       return res.status(404).json({
-        message: "Group member not found",
+        message: "Group member not found"
       });
     }
 
-    res.json(member);
+
+    res.status(200).json({
+      message: "Group member fetched successfully",
+      member
+    });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to get group member",
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
 
-export const getMembersByGroupIdController = async (req, res) => {
+
+export const getMembersByGroupIdController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { groupId } = req.params;
 
-    const members = await getMembersByGroupId(groupId);
 
-    res.json(members);
+    validateGroupId({
+      groupId
+    });
+
+
+    const members = await getMembersByGroupId(
+      groupId
+    );
+
+
+    res.status(200).json({
+      message: "Live group members fetched successfully",
+      members
+    });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to get group members",
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };
 
 
-export const removeMemberFromGroupController = async (req, res) => {
+
+export const removeMemberFromGroupController = async (
+  req,
+  res
+) => {
+
   try {
+
     const { id } = req.params;
+
+
+    validateLiveGroupMemberId({
+      id
+    });
+
 
     const member = await removeMemberFromGroup(id);
 
+
     if (!member) {
       return res.status(404).json({
-        message: "Group member not found",
+        message: "Group member not found"
       });
     }
 
-    res.json({
+
+    res.status(200).json({
       message: "User removed from live group successfully",
-      member,
+      member
     });
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: "Failed to remove user from live group",
+    res.status(400).json({
+      message: error.message
     });
+
   }
 };

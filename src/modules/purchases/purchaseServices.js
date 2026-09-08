@@ -1,9 +1,44 @@
 import pool from "../../config/db.js";
 
 
-// CREATE PURCHASE AFTER SUCCESSFUL PAYMENT
-export const createPurchase = async (userId, courseId, paymentId) => {
+// CREATE
+export const createPurchase = async (
+  userId,
+  courseId,
+  paymentId
+) => {
 
+  // Check if user exists
+  const userResult = await pool.query(
+    `
+    SELECT id
+    FROM users
+    WHERE id = $1
+    `,
+    [userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new Error("User not found");
+  }
+
+
+  // Check if course exists
+  const courseResult = await pool.query(
+    `
+    SELECT id
+    FROM courses
+    WHERE id = $1
+    `,
+    [courseId]
+  );
+
+  if (courseResult.rows.length === 0) {
+    throw new Error("Course not found");
+  }
+
+
+  // Check if payment exists
   const paymentResult = await pool.query(
     `
     SELECT *
@@ -19,20 +54,52 @@ export const createPurchase = async (userId, courseId, paymentId) => {
 
   const payment = paymentResult.rows[0];
 
-  // PAYMENT MUST BE SUCCESSFUL
+
+  // Payment must be successful
   if (payment.status !== "success") {
-    throw new Error("Purchase cannot be created because payment was not successful");
+    throw new Error(
+      "Purchase cannot be created because payment was not successful"
+    );
   }
 
-  // PAYMENT MUST BELONG TO SAME USER
-  if (payment.user_id !== userId) {
-    throw new Error("Payment does not belong to this user");
+
+  // Payment must belong to the same user
+  if (Number(payment.user_id) !== Number(userId)) {
+    throw new Error(
+      "Payment does not belong to this user"
+    );
   }
+
+
+  // Prevent duplicate purchase
+  const existingPurchase = await pool.query(
+    `
+    SELECT id
+    FROM purchases
+    WHERE user_id = $1
+      AND course_id = $2
+      AND status = 'active'
+      AND expires_at > NOW()
+    LIMIT 1
+    `,
+    [userId, courseId]
+  );
+
+  if (existingPurchase.rows.length > 0) {
+    throw new Error(
+      "User already has an active purchase for this course"
+    );
+  }
+
 
   const purchaseDate = new Date();
 
   const expiresAt = new Date(purchaseDate);
-  expiresAt.setDate(expiresAt.getDate() + 365);
+
+  expiresAt.setDate(
+    expiresAt.getDate() + 365
+  );
+
 
   const result = await pool.query(
     `
@@ -70,7 +137,7 @@ export const getUserPurchases = async (userId) => {
     SELECT *
     FROM purchases
     WHERE user_id = $1
-    ORDER BY purchase_date DESC
+    ORDER BY purchase_date DESC, id DESC
     `,
     [userId]
   );
@@ -79,7 +146,7 @@ export const getUserPurchases = async (userId) => {
 };
 
 
-// GET PURCHASE BY ID
+// GET BY ID
 export const getPurchaseById = async (id) => {
 
   const result = await pool.query(
@@ -96,9 +163,12 @@ export const getPurchaseById = async (id) => {
 
 
 // CHECK COURSE ACCESS
-export const checkCourseAccess = async (userId, courseId) => {
+export const checkCourseAccess = async (
+  userId,
+  courseId
+) => {
 
-  // Mark expired purchases as expired
+  // Expire old purchases
   await pool.query(
     `
     UPDATE purchases
@@ -111,9 +181,11 @@ export const checkCourseAccess = async (userId, courseId) => {
     [userId, courseId]
   );
 
+
+  // Check active purchase
   const result = await pool.query(
     `
-    SELECT *
+    SELECT id
     FROM purchases
     WHERE user_id = $1
       AND course_id = $2
