@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 import {
   createGalleryItemController,
@@ -10,14 +12,30 @@ import {
 
 const router = express.Router();
 
-router.post("/", createGalleryItemController);
-
+// Public gallery viewing
 router.get("/", getAllGalleryItemsController);
-
 router.get("/:id", getGalleryItemByIdController);
 
-router.put("/:id", updateGalleryItemController);
+// Admin-only gallery management
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  createGalleryItemController
+);
 
-router.delete("/:id", deleteGalleryItemController);
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  updateGalleryItemController
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteGalleryItemController
+);
 
 export default router;

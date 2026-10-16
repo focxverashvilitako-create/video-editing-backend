@@ -43,16 +43,19 @@ export const getGoogleUser = async (code) => {
   });
 
 
-  const payload = ticket.getPayload();
+ const payload = ticket.getPayload();
 
+if (!payload?.email || payload.email_verified !== true) {
+  throw new Error("Google account email must be verified");
+}
 
-  return {
-    googleId: payload.sub,
-    email: payload.email,
-    firstName: payload.given_name,
-    lastName: payload.family_name,
-    avatar: payload.picture
-  };
+return {
+  googleId: payload.sub,
+  email: payload.email.trim().toLowerCase(),
+  firstName: payload.given_name,
+  lastName: payload.family_name,
+  avatar: payload.picture
+};
 
 };
 
@@ -75,15 +78,21 @@ export const handleGoogleLogin = async (googleUser) => {
   // ვამოწმებთ უკვე არის თუ არა user
 
   let result = await pool.query(
-    `
-    SELECT *
-    FROM users
-    WHERE email = $1
-    `,
-    [
-      email
-    ]
-  );
+  `
+  SELECT
+    id,
+    first_name,
+    last_name,
+    email,
+    phone,
+    avatar,
+    role,
+    registration_completed
+  FROM users
+  WHERE email = $1
+  `,
+  [email]
+);
 
 
   let user = result.rows[0];

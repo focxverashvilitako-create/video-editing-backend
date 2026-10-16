@@ -6,7 +6,6 @@ export const enrollUserInGroup = async (userId, groupId) => {
   try {
     await client.query("BEGIN");
 
-   
     const groupResult = await client.query(
       `
       SELECT *
@@ -23,7 +22,6 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("Live group not found");
     }
 
-   
     if (
       group.status !== "upcoming" &&
       group.status !== "active"
@@ -31,10 +29,9 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("Enrollment is not available for this group");
     }
 
-    
     const existingMemberResult = await client.query(
       `
-      SELECT *
+      SELECT id
       FROM live_group_members
       WHERE group_id = $1
         AND user_id = $2
@@ -46,12 +43,17 @@ export const enrollUserInGroup = async (userId, groupId) => {
       throw new Error("User is already enrolled in this group");
     }
 
-    
-    if (group.current_students >= group.max_students) {
+    const currentStudents = Number(group.current_students ?? 0);
+    const maxStudents = group.max_students;
+
+    if (
+      maxStudents !== null &&
+      maxStudents !== undefined &&
+      currentStudents >= Number(maxStudents)
+    ) {
       throw new Error("Live group is full");
     }
 
-    
     const memberResult = await client.query(
       `
       INSERT INTO live_group_members (
@@ -65,11 +67,10 @@ export const enrollUserInGroup = async (userId, groupId) => {
       [groupId, userId]
     );
 
-    
     await client.query(
       `
       UPDATE live_groups
-      SET current_students = current_students + 1
+      SET current_students = COALESCE(current_students, 0) + 1
       WHERE id = $1
       `,
       [groupId]
@@ -78,11 +79,9 @@ export const enrollUserInGroup = async (userId, groupId) => {
     await client.query("COMMIT");
 
     return memberResult.rows[0];
-
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
-
   } finally {
     client.release();
   }

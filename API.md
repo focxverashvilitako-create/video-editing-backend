@@ -1,20 +1,22 @@
+# API Documentation
 
-Base URL:http://localhost:3000
+**Base URL:** http://localhost:3000
 
 ---
 
+# AUTH API
+
 ## Register API
 
-**Method:**
-
+**Method:**  
 POST
 
-**Route:**
-
-/auth/register
+**Route:**  
+`/auth/register`
 
 ### Body
 
+```json
 {
   "firstName": "string",
   "lastName": "string",
@@ -25,194 +27,364 @@ POST
 }
 ```
 
+## Verify Email API
+
+**Method:**  
+POST
+
+**Route:**  
+`/auth/verify-email`
+
+### Body
+
+```json
+{
+  "email": "string",
+  "code": "string"
+}
+```
+
 ### Response
 
 ```json
 {
-  "message": "User registered",
+  "message": "Email verified successfully",
+  "token": "JWT_TOKEN",
   "user": {
-    "token": "string",
-    "user": {
-      "id": "uuid",
-      "first_name": "string",
-      "last_name": "string",
-      "email": "string",
-      "phone": "string",
-      "avatar": "string | null",
-      "role": "string"
-    }
+    "id": "USER_UUID",
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "phone": "string",
+    "avatar": "string | null",
+    "role": "student",
+    "email_verified_at": "TIMESTAMP"
   }
 }
 ```
 
----
+## Resend Verification Code API
 
-## Login API
-
-**Method:**
-
+**Method:**  
 POST
 
-**Route:**
-
-/auth/login
+**Route:**  
+`/auth/resend-verification`
 
 ### Body
 
+```json
+{
+  "email": "string"
+}
+```
 
+## Login API
+
+**Method:**  
+POST
+
+**Route:**  
+`/auth/login`
+
+### Body
+
+```json
 {
   "email": "string",
   "password": "string"
 }
 ```
 
-### Response
-
-
-{
-  "message": "Login successful",
-  "token": "string"
-}
-```
-
----
-
 ## Forgot Password API
 
-**Method:**
-
+**Method:**  
 POST
 
-**Route:**
-
-/auth/forgot-password
+**Route:**  
+`/auth/forgot-password`
 
 ### Body
 
+```json
 {
   "email": "string"
 }
 ```
 
-### Response
-
-
-{
-  "message": "Password reset token created",
-  "token": "string"
-}
-```
-
-The reset token expires after **15 minutes**.
-
----
-
 ## Reset Password API
 
-**Method:**
-
+**Method:**  
 POST
 
-**Route:**
-
-/auth/reset-password
+**Route:**  
+`/auth/reset-password`
 
 ### Body
 
+```json
 {
   "token": "string",
   "newPassword": "string"
 }
 ```
 
-### Response
+## Google OAuth
 
+| Method | Route |
+|---|---|
+| GET | `/auth/google` |
+| GET | `/auth/google/callback` |
+| POST | `/auth/google/complete` |
 
-{
-  "message": "Password changed successfully"
-}
-```
+## Facebook OAuth
 
----
-
-# GOOGLE OAUTH
-
-## Google Login Start API
-
-**Method:**
-
-GET
-
-**Route:**
-
-/auth/google
-
-### Response
-
-Redirects the user to the Google login page.
+| Method | Route |
+|---|---|
+| GET | `/auth/facebook` |
+| GET | `/auth/facebook/callback` |
+| POST | `/auth/facebook/complete` |
 
 ---
 
-## Google Login Callback API
+# USERS API
 
-**Method:**
+## Get Profile
 
-GET
+**Method:** GET
 
-**Route:**
+**Route:** `/users/profile`
 
-/auth/google/callback
+## Get User Dashboard
 
-### Query Parameters
+**Method:** GET
 
-```text
-code: string (required)
-```
-
-### Possible Responses
-
-### 1. Existing Google User
-
-If the Google account is already registered:
-
-
-{
-  "token": "JWT_TOKEN",
-  "user": {}
-}
-```
-
-### 2. New Google User
-
-If the Google account is not registered:
-
-
-{
-  "needsPhone": true,
-  "pendingId": "uuid"
-}
-```
-
-
+**Route:** `/users/dashboard`
 
 ---
 
-## Complete Google Registration API
+# ADMIN API
 
-**Method:**
+## Get Admin Dashboard
 
-POST
+**Method:** GET
 
-**Route:**
+**Route:** `/admin/dashboard`
 
-/auth/google/complete
+---
 
-### Body
+# COURSES API
 
+## Create Course
 
+**Method:** POST
+
+**Route:** `/courses`
+
+### Request Body
+
+```json
 {
-  "pendingId": "uuid",
-  "phone": "string"
+  "title": "COURSE_TITLE",
+  "description": "COURSE_DESCRIPTION",
+  "price": 0
+}
+```
+
+## Get All Courses
+
+**Method:** GET
+
+**Route:** `/courses`
+
+## Get Course by ID
+
+**Method:** GET
+
+**Route:** `/courses/:id`
+
+## Update Course
+
+**Method:** PUT
+
+**Route:** `/courses/:id`
+
+### Request Body
+
+```json
+{
+  "title": "COURSE_TITLE",
+  "description": "COURSE_DESCRIPTION",
+  "price": 0
+}
+```
+
+## Delete Course
+
+**Method:** DELETE
+
+**Route:** `/courses/:id`
+
+---
+
+# COURSE SECTIONS API
+
+## Get All Course Sections
+
+**Method:** GET
+
+**Route:** `/coursesections`
+
+## Get Sections by Course
+
+**Method:** GET
+
+**Route:** `/coursesections/course/:course_id`
+
+## Get Section by ID
+
+**Method:** GET
+
+**Route:** `/coursesections/:id`
+
+## Create Course Section
+
+**Method:** POST
+
+**Route:** `/coursesections`
+
+## Update Course Section
+
+**Method:** PATCH
+
+**Route:** `/coursesections/:id`
+
+## Delete Course Section
+
+**Method:** DELETE
+
+**Route:** `/coursesections/:id`
+
+---
+
+# LESSONS API
+
+## Create Lesson
+
+**Method:** POST
+
+**Route:** `/lessons`
+
+### Request Body
+
+```json
+{
+  "section_id": "SECTION_UUID",
+  "title": "LESSON_TITLE",
+  "description": "LESSON_DESCRIPTION",
+  "video_url": "VIDEO_URL",
+  "duration": 0,
+  "provider": "VIDEO_PROVIDER",
+  "is_preview": false,
+  "sort_order": 0
+}
+```
+
+## Get All Lessons
+
+**Method:** GET
+
+**Route:** `/lessons`
+
+## Get Lesson by ID
+
+**Method:** GET
+
+**Route:** `/lessons/:id`
+
+## Update Lesson
+
+**Method:** PUT
+
+**Route:** `/lessons/:id`
+
+### Request Body
+
+```json
+{
+  "section_id": "SECTION_UUID",
+  "title": "LESSON_TITLE",
+  "description": "LESSON_DESCRIPTION",
+  "video_url": "VIDEO_URL",
+  "duration": 0,
+  "provider": "VIDEO_PROVIDER",
+  "is_preview": false,
+  "sort_order": 0
+}
+```
+
+## Delete Lesson
+
+**Method:** DELETE
+
+**Route:** `/lessons/:id`
+
+---
+
+# LESSON RESOURCES API
+
+## Get All Lesson Resources
+
+**Method:** GET
+
+**Route:** `/lessonresources`
+
+## Get Resource by ID
+
+**Method:** GET
+
+**Route:** `/lessonresources/:id`
+
+## Get Resources by Lesson
+
+**Method:** GET
+
+**Route:** `/lessonresources/lesson/:lessonId`
+
+## Create Lesson Resource
+
+**Method:** POST
+
+**Route:** `/lessonresources`
+
+## Update Lesson Resource
+
+**Method:** PUT
+
+**Route:** `/lessonresources/:id`
+
+## Delete Lesson Resource
+
+**Method:** DELETE
+
+**Route:** `/lessonresources/:id`
+
+---
+
+# PURCHASES API
+
+## Create Purchase
+
+**Method:** POST
+
+**Route:** `/purchases`
+
+### Request Body
+
+```json
+{
+  "courseId": "COURSE_UUID",
+  "paymentId": "PAYMENT_UUID"
 }
 ```
 
@@ -220,320 +392,101 @@ POST
 
 ```json
 {
-  "message": "Registration completed",
-  "token": "JWT_TOKEN",
-  "user": {}
-}
-```
-
----
-
-# FACEBOOK OAUTH
-
-## Facebook Login Start API
-
-**Method:**
-
-GET
-
-**Route:**
-
-/auth/facebook
-
-### Response
-
-Redirects the user to the Facebook login page.
-
----
-
-## Facebook Login Callback API
-
-**Method:**
-
-GET
-
-**Route:**
-
-/auth/facebook/callback
-
-### Query Parameters
-
-```text
-code: string (required)
-```
-
-
-
-### Possible Responses
-
-### 1. Existing Facebook User
-
-{
-  "token": "JWT_TOKEN",
-  "user": {
-    "id": "uuid",
-    "first_name": "string",
-    "last_name": "string",
-    "email": "string",
-    "phone": "string",
-    "avatar": "string | null",
-    "role": "string"
-  }
-}
-```
-
-### 2. New Facebook User
-
-If the Facebook account is not registered:
-
-
-{
-  "needsPhone": true,
-  "pendingId": "uuid"
-}
-```
-
----
-
-## Complete Facebook Registration API
-
-**Method:**
-
-POST
-
-**Route:**
-
-/auth/facebook/complete
-
-### Body
-
-{
-  "pendingId": "uuid",
-  "phone": "string"
-}
-```
-
-### Response
-
-
-{
-  "message": "Registration completed",
-  "token": "JWT_TOKEN",
-  "user": {}
-}
-```
-
-
-
-
-
-
-# COURSES
-
-## Create Course
-
-POST /courses
-
-### Request Body
-
-{
-  "title": "COURSE_TITLE",
-  "description": "COURSE_DESCRIPTION",
-  "price": 0
-}
-
-## Get All Courses
-
-GET /courses
-
-## Get Course by ID
-
-GET /courses/:id
-
-## Update Course
-
-PUT /courses/:id
-
-### Request Body
-
-{
-  "title": "COURSE_TITLE",
-  "description": "COURSE_DESCRIPTION",
-  "price": 0
-}
-
-## Delete Course
-
-DELETE /courses/:id
-
-
-# LESSONS
-
-## Create Lesson
-
-POST /lessons
-
-### Request Body
-
-{
-  "section_id": "SECTION_UUID",
-  "title": "LESSON_TITLE",
-  "description": "LESSON_DESCRIPTION",
-  "video_url": "VIDEO_URL",
-  "duration": 0,
-  "provider": "VIDEO_PROVIDER",
-  "is_preview": false,
-  "sort_order": 0
-}
-
-## Get All Lessons
-
-GET /lessons
-
-## Get Lesson by ID
-
-GET /lessons/:id
-
-## Update Lesson
-
-PUT /lessons/:id
-
-### Request Body
-
-{
-  "section_id": "SECTION_UUID",
-  "title": "LESSON_TITLE",
-  "description": "LESSON_DESCRIPTION",
-  "video_url": "VIDEO_URL",
-  "duration": 0,
-  "provider": "VIDEO_PROVIDER",
-  "is_preview": false,
-  "sort_order": 0
-}
-
-## Delete Lesson
-
-DELETE /lessons/:id
-
-
-# PURCHASES
-
-## Create Purchase
-
-POST /purchases
-
-### Request Body
-
-{
-  "user_id": "USER_UUID",
-  "course_id": "COURSE_UUID",
-  "payment_id": "PAYMENT_UUID"
-}
-
-### Response
-
-{
   "message": "Purchase created successfully",
-  "purchase": {
-    "id": "PURCHASE_UUID",
-    "user_id": "USER_UUID",
-    "course_id": "COURSE_UUID",
-    "payment_id": "PAYMENT_UUID",
-    "purchase_date": "PURCHASE_DATE",
-    "expires_at": "EXPIRATION_DATE",
-    "status": "active"
-  }
+  "purchase": {}
 }
-
-### Course Access
-
-Course access is valid for 365 days from the purchase date.
-
+```
 
 ## Get User Purchases
 
-GET /purchases/user/:userId
+**Method:** GET
 
+**Route:** `/purchases/user/:userId`
 
 ## Get Purchase by ID
 
-GET /purchases/:id
+**Method:** GET
 
+**Route:** `/purchases/:id`
 
 ## Check Course Access
 
-GET /purchases/user/:userId/course/:courseId/access
+**Method:** GET
+
+**Route:** `/purchases/user/:userId/course/:courseId/access`
 
 ### Response
 
+```json
 {
+  "courseId": "COURSE_UUID",
   "hasAccess": true
 }
+```
 
+---
 
-# COURSE PROGRESS
+# PAYMENTS API
 
-## Update Lesson Progress
+## Simulate Payment
 
-POST /progress
+**Method:** POST
 
-### Request Body
+**Route:** `/payments/simulate`
 
-{
-  "userId": "USER_UUID",
-  "lessonId": "LESSON_UUID",
-  "lastPosition": 0
-}
+---
 
-### Response
-
-{
-  "message": "Lesson progress updated successfully",
-  "progress": {
-    "id": "PROGRESS_UUID",
-    "user_id": "USER_UUID",
-    "lesson_id": "LESSON_UUID",
-    "last_position": 0,
-    "watched_percent": "0",
-    "completed": false
-  }
-}
-
-### Progress Rules
-
-- last_position stores the last watched position in seconds.
-- watched_percent stores the percentage watched.
-- A lesson becomes completed when watched_percent reaches 90%.
-- completed becomes true when the lesson is completed.
-- Completing a lesson unlocks the next lesson.
-- last_position allows the video to resume from the exact position where the user stopped.
-
+# COURSE PROGRESS API
 
 ## Get Lesson Progress
 
-GET /progress/user/:userId/lesson/:lessonId
+**Method:** GET
 
+**Route:** `/progress/lesson/:lessonId`
+
+## Update Lesson Progress
+
+**Method:** PUT
+
+**Route:** `/progress/lesson/:lessonId`
+
+### Request Body
+
+```json
+{
+  "lastPosition": 0,
+  "watchedPercent": 0
+}
+```
 
 ## Check Lesson Access
 
-GET /progress/user/:userId/lesson/:lessonId/access
+**Method:** GET
+
+**Route:** `/progress/lesson/:lessonId/access`
 
 ### Response
 
+```json
 {
   "lessonId": "LESSON_UUID",
   "hasAccess": true
 }
+```
 
+---
 
-# LIVE GROUPS
+# LIVE GROUPS API
 
 ## Create Live Group
 
-POST /livegroups
+**Method:** POST
+
+**Route:** `/livegroups`
 
 ### Request Body
 
+```json
 {
   "course_id": "COURSE_UUID",
   "title": "GROUP_TITLE",
@@ -545,112 +498,265 @@ POST /livegroups
   "start_time": "START_TIME",
   "end_time": "END_TIME"
 }
-
-### Status Values
-
-- upcoming
-- active
-- completed
-
-### Notes
-
-current_students is initialized to 0.
-
+```
 
 ## Get All Live Groups
 
-GET /livegroups
+**Method:** GET
 
+**Route:** `/livegroups`
 
 ## Get Live Group by ID
 
-GET /livegroups/:id
+**Method:** GET
 
+**Route:** `/livegroups/:id`
 
 ## Update Live Group
 
-PUT /livegroups/:id
+**Method:** PUT
 
-### Request Body
-
-{
-  "course_id": "COURSE_UUID",
-  "title": "GROUP_TITLE",
-  "max_students": 0,
-  "start_date": "START_DATE",
-  "schedule": {},
-  "location": "LOCATION",
-  "status": "upcoming",
-  "start_time": "START_TIME",
-  "end_time": "END_TIME"
-}
-
+**Route:** `/livegroups/:id`
 
 ## Delete Live Group
 
-DELETE /livegroups/:id
+**Method:** DELETE
 
+**Route:** `/livegroups/:id`
 
-# LIVE GROUP ENROLLMENT
+---
+
+# LIVE GROUP ENROLLMENT API
 
 ## Enroll User in Live Group
 
-POST /enrollments/enroll
+**Method:** POST
+
+**Route:** `/enrollments/enroll`
 
 ### Request Body
 
+```json
 {
-  "userId": "USER_UUID",
   "groupId": "GROUP_UUID"
 }
+```
 
 ### Successful Response
 
+```json
 {
   "message": "User enrolled successfully",
-  "enrollment": {
-    "id": "ENROLLMENT_UUID",
-    "group_id": "GROUP_UUID",
-    "user_id": "USER_UUID",
-    "joined_at": "JOINED_DATE"
-  }
+  "enrollment": {}
 }
+```
 
-### Enrollment Rules
+---
 
-The backend checks:
+# LIVE GROUP MEMBERS API
 
-1. The live group exists.
-2. The group status is upcoming or active.
-3. The group has available seats.
-4. The user is not already enrolled.
-5. The enrollment is created.
-6. current_students is increased by 1.
+## Add Live Group Member
 
+**Method:** POST
 
- Possible Errors
+**Route:** `/livegroupmembers`
 
-Group not found:
+## Get All Live Group Members
 
-{
-  "message": "Live group not found"
-}
+**Method:** GET
 
-Already enrolled:
+**Route:** `/livegroupmembers`
 
-{
-  "message": "User is already enrolled in this group"
-}
+## Get Members by Group
 
-Group is full:
+**Method:** GET
 
-{
-  "message": "Live group is full"
-}
+**Route:** `/livegroupmembers/group/:groupId`
 
-Enrollment unavailable:
+## Get Member by ID
 
-{
-  "message": "Enrollment is not available for this group"
-}
+**Method:** GET
 
+**Route:** `/livegroupmembers/:id`
+
+## Remove Live Group Member
+
+**Method:** DELETE
+
+**Route:** `/livegroupmembers/:id`
+
+---
+
+# LECTURE RECORDINGS API
+
+## Create Lecture Recording
+
+**Method:** POST
+
+**Route:** `/lecturerecordings`
+
+## Get All Lecture Recordings
+
+**Method:** GET
+
+**Route:** `/lecturerecordings`
+
+## Get Recordings by Group
+
+**Method:** GET
+
+**Route:** `/lecturerecordings/group/:groupId`
+
+## Get Recording by ID
+
+**Method:** GET
+
+**Route:** `/lecturerecordings/:id`
+
+## Update Lecture Recording
+
+**Method:** PUT
+
+**Route:** `/lecturerecordings/:id`
+
+## Delete Lecture Recording
+
+**Method:** DELETE
+
+**Route:** `/lecturerecordings/:id`
+
+---
+
+# SYLLABUS API
+
+## Get All Syllabus Items
+
+**Method:** GET
+
+**Route:** `/syllabus`
+
+## Get Syllabus by Course
+
+**Method:** GET
+
+**Route:** `/syllabus/course/:courseId`
+
+## Get Syllabus by ID
+
+**Method:** GET
+
+**Route:** `/syllabus/:id`
+
+## Create Syllabus Item
+
+**Method:** POST
+
+**Route:** `/syllabus`
+
+## Update Syllabus Item
+
+**Method:** PUT
+
+**Route:** `/syllabus/:id`
+
+## Delete Syllabus Item
+
+**Method:** DELETE
+
+**Route:** `/syllabus/:id`
+
+---
+
+# GALLERY API
+
+## Get All Gallery Items
+
+**Method:** GET
+
+**Route:** `/gallery`
+
+## Get Gallery Item by ID
+
+**Method:** GET
+
+**Route:** `/gallery/:id`
+
+## Create Gallery Item
+
+**Method:** POST
+
+**Route:** `/gallery`
+
+## Update Gallery Item
+
+**Method:** PUT
+
+**Route:** `/gallery/:id`
+
+## Delete Gallery Item
+
+**Method:** DELETE
+
+**Route:** `/gallery/:id`
+
+---
+
+# SETTINGS API
+
+## Get Settings
+
+**Method:** GET
+
+**Route:** `/settings`
+
+## Create Setting
+
+**Method:** POST
+
+**Route:** `/settings`
+
+## Update Setting
+
+**Method:** PUT
+
+**Route:** `/settings/:id`
+
+## Delete Setting
+
+**Method:** DELETE
+
+**Route:** `/settings/:id`
+
+---
+
+# CONTACT MESSAGES API
+
+## Send Contact Message
+
+**Method:** POST
+
+**Route:** `/contactmessages`
+
+## Get All Contact Messages
+
+**Method:** GET
+
+**Route:** `/contactmessages`
+
+## Get Contact Message by ID
+
+**Method:** GET
+
+**Route:** `/contactmessages/:id`
+
+## Update Contact Message Status
+
+**Method:** PATCH
+
+**Route:** `/contactmessages/:id/status`
+
+## Delete Contact Message
+
+**Method:** DELETE
+
+**Route:** `/contactmessages/:id`

@@ -6,13 +6,10 @@ import {
   validateEnrollment
 } from "./enrollmentValidations.js";
 
-
 export const enrollUserInGroupController = async (req, res) => {
   try {
-    const {
-      userId,
-      groupId
-    } = req.body;
+    const userId = req.user.id;
+    const { groupId } = req.body;
 
     validateEnrollment({
       userId,
@@ -24,14 +21,12 @@ export const enrollUserInGroupController = async (req, res) => {
       groupId
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "User enrolled successfully",
       enrollment
     });
-
   } catch (error) {
-
-    console.log(error);
+    console.error("Enroll user in group error:", error);
 
     if (error.message === "Live group not found") {
       return res.status(404).json({
@@ -40,30 +35,23 @@ export const enrollUserInGroupController = async (req, res) => {
     }
 
     if (
-      error.message ===
-      "User is already enrolled in this group"
+      error.message === "User is already enrolled in this group" ||
+      error.message === "Live group is full"
     ) {
-      return res.status(409).json({
-        message: error.message
-      });
-    }
-
-    if (error.message === "Live group is full") {
       return res.status(409).json({
         message: error.message
       });
     }
 
     if (
-      error.message ===
-      "Enrollment is not available for this group"
+      error.message === "Enrollment is not available for this group"
     ) {
       return res.status(400).json({
         message: error.message
       });
     }
 
-    res.status(400).json({
+    return res.status(400).json({
       message: error.message
     });
   }

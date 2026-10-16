@@ -1,5 +1,5 @@
 import express from "express";
-
+import authMiddleware from "../../middleware/authMiddleware.js";
 import {
   createPurchaseController,
   getUserPurchasesController,
@@ -9,34 +9,25 @@ import {
 
 const router = express.Router();
 
+// All purchase routes require authentication
+router.use(authMiddleware);
 
-// CREATE PURCHASE
-router.post(
-  "/",
-  createPurchaseController
-);
+// Create a purchase
+router.post("/", createPurchaseController);
 
+// Check access to a course
 router.get(
   "/user/:userId/course/:courseId/access",
   checkCourseAccessController
 );
 
-
-// GET USER PURCHASES
+// Get purchases for a user
 router.get(
   "/user/:userId",
   getUserPurchasesController
 );
 
-
-// GET PURCHASE BY ID
-router.get(
-  "/:id",
-  getPurchaseByIdController
-);
-
-
-// CHECK COURSE ACCESS
-
+// Get a purchase by ID
+router.get("/:id", getPurchaseByIdController);
 
 export default router;

@@ -4,6 +4,8 @@ import {
   validateUpdateSyllabus
 } from "./syllabusValidations.js";
 
+
+
 export const createSyllabusController = async (req, res) => {
   try {
     const {
@@ -14,6 +16,13 @@ export const createSyllabusController = async (req, res) => {
     } = req.body;
 
     validateCreateSyllabus({
+      course_id,
+      title,
+      description,
+      sort_order
+    });
+
+    const syllabus = await syllabusService.createSyllabus({
       course_id,
       title,
       description,
@@ -94,6 +103,16 @@ export const updateSyllabusController = async (req, res) => {
       description,
       sort_order
     });
+
+    const syllabus = await syllabusService.updateSyllabus(
+      req.params.id,
+      {
+        course_id,
+        title,
+        description,
+        sort_order
+      }
+    );
 
     res.json({
       message: "Syllabus updated successfully",

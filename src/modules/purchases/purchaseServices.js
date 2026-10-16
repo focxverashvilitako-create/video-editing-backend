@@ -1,3 +1,4 @@
+
 import pool from "../../config/db.js";
 
 
@@ -64,7 +65,10 @@ export const createPurchase = async (
 
 
   // Payment must belong to the same user
-  if (Number(payment.user_id) !== Number(userId)) {
+  if (
+    String(payment.user_id).toLowerCase() !==
+    String(userId).toLowerCase()
+  ) {
     throw new Error(
       "Payment does not belong to this user"
     );

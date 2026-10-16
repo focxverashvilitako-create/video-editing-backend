@@ -102,28 +102,28 @@ export const completeGoogleRegister = async (req, res) => {
 }
 
     const userResult = await pool.query(
-      `
-      INSERT INTO users
-      (
-        first_name,
-        last_name,
-        email,
-        phone,
-        avatar,
-        registration_completed
-      )
-      VALUES
-      ($1,$2,$3,$4,$5, true)
-      RETURNING *
-      `,
-      [
-        googleUser.first_name,
-        googleUser.last_name,
-        googleUser.email,
-        phone,
-        googleUser.avatar
-      ]
-    );
+  `
+  INSERT INTO users
+  (first_name, last_name, email, phone, avatar, registration_completed)
+  VALUES ($1, $2, $3, $4, $5, true)
+  RETURNING
+    id,
+    first_name,
+    last_name,
+    email,
+    phone,
+    avatar,
+    role,
+    registration_completed
+  `,
+  [
+    googleUser.first_name,
+    googleUser.last_name,
+    googleUser.email,
+    phone,
+    googleUser.avatar
+  ]
+);
 
 
     const user = userResult.rows[0];

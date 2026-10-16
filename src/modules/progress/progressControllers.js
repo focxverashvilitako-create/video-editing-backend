@@ -9,22 +9,14 @@ import {
   validateUpdateLessonProgress
 } from "./progressValidations.js";
 
-
 export const getLessonProgressController = async (req, res) => {
-
   try {
+    const userId = req.user.id;
+    const { lessonId } = req.params;
 
-    const { userId, lessonId } = req.params;
+    validateLessonProgressParams({ userId, lessonId });
 
-    validateLessonProgressParams({
-      userId,
-      lessonId
-    });
-
-    const progress = await getLessonProgress(
-      userId,
-      lessonId
-    );
+    const progress = await getLessonProgress(userId, lessonId);
 
     if (!progress) {
       return res.status(404).json({
@@ -32,33 +24,24 @@ export const getLessonProgressController = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Lesson progress fetched successfully",
       progress
     });
-
   } catch (error) {
+    console.error("Get lesson progress error:", error);
 
-    console.log(error);
-
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to fetch lesson progress"
     });
-
   }
 };
 
-
 export const updateLessonProgressController = async (req, res) => {
-
   try {
-
-    const { userId, lessonId } = req.params;
-
-    const {
-      lastPosition,
-      watchedPercent
-    } = req.body;
+    const userId = req.user.id;
+    const { lessonId } = req.params;
+    const { lastPosition, watchedPercent } = req.body;
 
     validateUpdateLessonProgress({
       userId,
@@ -74,51 +57,37 @@ export const updateLessonProgressController = async (req, res) => {
       watchedPercent
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Lesson progress updated successfully",
       progress
     });
-
   } catch (error) {
+    console.error("Update lesson progress error:", error);
 
-    console.log(error);
-
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to update lesson progress"
     });
-
   }
 };
 
-
 export const checkLessonAccessController = async (req, res) => {
-
   try {
+    const userId = req.user.id;
+    const { lessonId } = req.params;
 
-    const { userId, lessonId } = req.params;
+    validateLessonProgressParams({ userId, lessonId });
 
-    validateLessonProgressParams({
-      userId,
-      lessonId
-    });
+    const hasAccess = await checkLessonAccess(userId, lessonId);
 
-    const hasAccess = await checkLessonAccess(
-      userId,
-      lessonId
-    );
-
-    res.status(200).json({
+    return res.status(200).json({
       lessonId,
       hasAccess
     });
-
   } catch (error) {
+    console.error("Check lesson access error:", error);
 
-    console.log(error);
-
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to check lesson access"
     });
-
   }
 };

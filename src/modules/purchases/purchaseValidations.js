@@ -1,3 +1,8 @@
+const uuidRegex =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+
+// CREATE PURCHASE
 export const validateCreatePurchase = ({
   userId,
   courseId,
@@ -12,10 +17,10 @@ export const validateCreatePurchase = ({
   ) {
     errors.push("User ID is required");
   } else if (
-    !Number.isInteger(Number(userId)) ||
-    Number(userId) <= 0
+    typeof userId !== "string" ||
+    !uuidRegex.test(userId)
   ) {
-    errors.push("User ID must be a valid positive integer");
+    errors.push("User ID must be a valid UUID");
   }
 
   if (
@@ -25,10 +30,10 @@ export const validateCreatePurchase = ({
   ) {
     errors.push("Course ID is required");
   } else if (
-    !Number.isInteger(Number(courseId)) ||
-    Number(courseId) <= 0
+    typeof courseId !== "string" ||
+    !uuidRegex.test(courseId)
   ) {
-    errors.push("Course ID must be a valid positive integer");
+    errors.push("Course ID must be a valid UUID");
   }
 
   if (
@@ -38,10 +43,10 @@ export const validateCreatePurchase = ({
   ) {
     errors.push("Payment ID is required");
   } else if (
-    !Number.isInteger(Number(paymentId)) ||
-    Number(paymentId) <= 0
+    typeof paymentId !== "string" ||
+    !uuidRegex.test(paymentId)
   ) {
-    errors.push("Payment ID must be a valid positive integer");
+    errors.push("Payment ID must be a valid UUID");
   }
 
   if (errors.length > 0) {
@@ -50,6 +55,7 @@ export const validateCreatePurchase = ({
 };
 
 
+// GET USER PURCHASES
 export const validateUserPurchases = ({
   userId
 }) => {
@@ -62,10 +68,10 @@ export const validateUserPurchases = ({
   ) {
     errors.push("User ID is required");
   } else if (
-    !Number.isInteger(Number(userId)) ||
-    Number(userId) <= 0
+    typeof userId !== "string" ||
+    !uuidRegex.test(userId)
   ) {
-    errors.push("User ID must be a valid positive integer");
+    errors.push("User ID must be a valid UUID");
   }
 
   if (errors.length > 0) {
@@ -74,6 +80,7 @@ export const validateUserPurchases = ({
 };
 
 
+// GET PURCHASE BY ID
 export const validatePurchaseId = ({
   id
 }) => {
@@ -86,10 +93,10 @@ export const validatePurchaseId = ({
   ) {
     errors.push("Purchase ID is required");
   } else if (
-    !Number.isInteger(Number(id)) ||
-    Number(id) <= 0
+    typeof id !== "string" ||
+    !uuidRegex.test(id)
   ) {
-    errors.push("Purchase ID must be a valid positive integer");
+    errors.push("Purchase ID must be a valid UUID");
   }
 
   if (errors.length > 0) {
@@ -98,6 +105,7 @@ export const validatePurchaseId = ({
 };
 
 
+// CHECK COURSE ACCESS
 export const validateCourseAccess = ({
   userId,
   courseId
@@ -111,10 +119,10 @@ export const validateCourseAccess = ({
   ) {
     errors.push("User ID is required");
   } else if (
-    !Number.isInteger(Number(userId)) ||
-    Number(userId) <= 0
+    typeof userId !== "string" ||
+    !uuidRegex.test(userId)
   ) {
-    errors.push("User ID must be a valid positive integer");
+    errors.push("User ID must be a valid UUID");
   }
 
   if (
@@ -124,10 +132,10 @@ export const validateCourseAccess = ({
   ) {
     errors.push("Course ID is required");
   } else if (
-    !Number.isInteger(Number(courseId)) ||
-    Number(courseId) <= 0
+    typeof courseId !== "string" ||
+    !uuidRegex.test(courseId)
   ) {
-    errors.push("Course ID must be a valid positive integer");
+    errors.push("Course ID must be a valid UUID");
   }
 
   if (errors.length > 0) {

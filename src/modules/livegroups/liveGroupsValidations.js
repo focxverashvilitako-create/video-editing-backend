@@ -1,3 +1,19 @@
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const isValidUUID = (value) =>
+  typeof value === "string" && UUID_REGEX.test(value);
+
+const isValidDate = (value) =>
+  typeof value === "string" &&
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) &&
+  new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+
+const isValidDateTime = (value) =>
+  typeof value === "string" &&
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?$/.test(value) &&
+  !Number.isNaN(Date.parse(value));
+
 export const validateCreateLiveGroup = ({
   course_id,
   title,
@@ -9,117 +25,69 @@ export const validateCreateLiveGroup = ({
   start_time,
   end_time
 }) => {
-
-  const errors = [];
-
-
-  if (
-    course_id === undefined ||
-    course_id === null ||
-    course_id === ""
-  ) {
-    errors.push("Course ID is required");
-  } else if (
-    !Number.isInteger(Number(course_id)) ||
-    Number(course_id) <= 0
-  ) {
-    errors.push("Course ID must be a valid positive integer");
+  if (!isValidUUID(course_id)) {
+    throw new Error("A valid course_id UUID is required");
   }
 
-
-  if (
-    !title ||
-    typeof title !== "string" ||
-    title.trim().length < 2
-  ) {
-    errors.push("Title must contain at least 2 characters");
+  if (typeof title !== "string" || title.trim().length < 2) {
+    throw new Error("Title must contain at least 2 characters");
   }
 
-
   if (
-    max_students === undefined ||
-    max_students === null
+    !Number.isInteger(max_students) ||
+    max_students <= 0
   ) {
-    errors.push("Max students is required");
-  } else if (
-    !Number.isInteger(Number(max_students)) ||
-    Number(max_students) <= 0
-  ) {
-    errors.push("Max students must be a valid positive integer");
+    throw new Error("max_students must be a positive integer");
   }
 
-
-  if (
-    start_date === undefined ||
-    start_date === null ||
-    start_date === ""
-  ) {
-    errors.push("Start date is required");
-  } else if (
-    Number.isNaN(Date.parse(start_date))
-  ) {
-    errors.push("Start date must be a valid date");
+  if (!isValidDate(start_date)) {
+    throw new Error("start_date must be a valid date in YYYY-MM-DD format");
   }
 
-
   if (
-    schedule === undefined ||
-    schedule === null
-  ) {
-    errors.push("Schedule is required");
-  } else if (
+    !schedule ||
     typeof schedule !== "object" ||
     Array.isArray(schedule)
   ) {
-    errors.push("Schedule must be an object");
+    throw new Error("schedule must be a valid object");
   }
-
 
   if (
     location !== undefined &&
     location !== null &&
     typeof location !== "string"
   ) {
-    errors.push("Location must be a string");
+    throw new Error("location must be a string");
   }
 
-
-  if (
-    status === undefined ||
-    status === null ||
-    status === ""
-  ) {
-    errors.push("Status is required");
-  } else if (
-    typeof status !== "string"
-  ) {
-    errors.push("Status must be a string");
+  if (typeof status !== "string" || !status.trim()) {
+    throw new Error("status is required");
   }
-
 
   if (
     start_time !== undefined &&
     start_time !== null &&
-    typeof start_time !== "string"
+    !isValidDateTime(start_time)
   ) {
-    errors.push("Start time must be a string");
+    throw new Error(
+      "start_time must be a datetime in YYYY-MM-DDTHH:mm:ss format"
+    );
   }
-
 
   if (
     end_time !== undefined &&
     end_time !== null &&
-    typeof end_time !== "string"
+    !isValidDateTime(end_time)
   ) {
-    errors.push("End time must be a string");
+    throw new Error(
+      "end_time must be a datetime in YYYY-MM-DDTHH:mm:ss format"
+    );
   }
 
-
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
+  if (start_time && end_time && Date.parse(end_time) <= Date.parse(start_time)) {
+    throw new Error("end_time must be later than start_time");
   }
 };
-
 
 export const validateUpdateLiveGroup = ({
   course_id,
@@ -132,144 +100,97 @@ export const validateUpdateLiveGroup = ({
   start_time,
   end_time
 }) => {
+  const hasField = [
+    course_id,
+    title,
+    max_students,
+    start_date,
+    schedule,
+    location,
+    status,
+    start_time,
+    end_time
+  ].some((value) => value !== undefined);
 
-  const errors = [];
-
-
-  if (course_id !== undefined) {
-    if (
-      !Number.isInteger(Number(course_id)) ||
-      Number(course_id) <= 0
-    ) {
-      errors.push("Course ID must be a valid positive integer");
-    }
+  if (!hasField) {
+    throw new Error("At least one field is required for update");
   }
 
-
-  if (title !== undefined) {
-    if (
-      typeof title !== "string" ||
-      title.trim().length < 2
-    ) {
-      errors.push("Title must contain at least 2 characters");
-    }
+  if (course_id !== undefined && !isValidUUID(course_id)) {
+    throw new Error("course_id must be a valid UUID");
   }
 
-
-  if (max_students !== undefined) {
-    if (
-      !Number.isInteger(Number(max_students)) ||
-      Number(max_students) <= 0
-    ) {
-      errors.push("Max students must be a valid positive integer");
-    }
+  if (
+    title !== undefined &&
+    (typeof title !== "string" || title.trim().length < 2)
+  ) {
+    throw new Error("Title must contain at least 2 characters");
   }
 
-
-  if (start_date !== undefined) {
-    if (
-      start_date === null ||
-      Number.isNaN(Date.parse(start_date))
-    ) {
-      errors.push("Start date must be a valid date");
-    }
+  if (
+    max_students !== undefined &&
+    (!Number.isInteger(max_students) || max_students <= 0)
+  ) {
+    throw new Error("max_students must be a positive integer");
   }
 
-
-  if (schedule !== undefined) {
-    if (
-      schedule === null ||
-      typeof schedule !== "object" ||
-      Array.isArray(schedule)
-    ) {
-      errors.push("Schedule must be an object");
-    }
+  if (start_date !== undefined && !isValidDate(start_date)) {
+    throw new Error("start_date must be a valid date in YYYY-MM-DD format");
   }
 
+  if (
+    schedule !== undefined &&
+    (!schedule || typeof schedule !== "object" || Array.isArray(schedule))
+  ) {
+    throw new Error("schedule must be a valid object");
+  }
 
   if (
     location !== undefined &&
     location !== null &&
     typeof location !== "string"
   ) {
-    errors.push("Location must be a string");
+    throw new Error("location must be a string");
   }
 
-
-  if (status !== undefined) {
-    if (
-      status === null ||
-      typeof status !== "string" ||
-      status.trim().length === 0
-    ) {
-      errors.push("Status must be a non-empty string");
-    }
+  if (
+    status !== undefined &&
+    (typeof status !== "string" || !status.trim())
+  ) {
+    throw new Error("status must be a non-empty string");
   }
-
 
   if (
     start_time !== undefined &&
     start_time !== null &&
-    typeof start_time !== "string"
+    !isValidDateTime(start_time)
   ) {
-    errors.push("Start time must be a string");
+    throw new Error(
+      "start_time must be a datetime in YYYY-MM-DDTHH:mm:ss format"
+    );
   }
-
 
   if (
     end_time !== undefined &&
     end_time !== null &&
-    typeof end_time !== "string"
+    !isValidDateTime(end_time)
   ) {
-    errors.push("End time must be a string");
+    throw new Error(
+      "end_time must be a datetime in YYYY-MM-DDTHH:mm:ss format"
+    );
   }
 
-
-  const hasNoFields =
-    course_id === undefined &&
-    title === undefined &&
-    max_students === undefined &&
-    start_date === undefined &&
-    schedule === undefined &&
-    location === undefined &&
-    status === undefined &&
-    start_time === undefined &&
-    end_time === undefined;
-
-
-  if (hasNoFields) {
-    errors.push("At least one field is required");
-  }
-
-
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
+  if (
+    start_time &&
+    end_time &&
+    Date.parse(end_time) <= Date.parse(start_time)
+  ) {
+    throw new Error("end_time must be later than start_time");
   }
 };
 
-
-export const validateLiveGroupId = ({
-  id
-}) => {
-
-  const errors = [];
-
-
-  if (
-    id === undefined ||
-    id === null ||
-    id === ""
-  ) {
-    errors.push("Live group ID is required");
-  } else if (
-    !Number.isInteger(Number(id)) ||
-    Number(id) <= 0
-  ) {
-    errors.push("Live group ID must be a valid positive integer");
-  }
-
-
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
+export const validateLiveGroupId = ({ id }) => {
+  if (!isValidUUID(id)) {
+    throw new Error("id must be a valid UUID");
   }
 };

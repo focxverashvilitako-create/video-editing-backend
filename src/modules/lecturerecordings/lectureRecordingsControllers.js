@@ -42,7 +42,14 @@ export const createLectureRecordingController = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.code === "23503") {
+    if (error.message?.includes("UUID") || error.message?.includes("Title") ||
+        error.message?.includes("Video URL") || error.message?.includes("Lesson date")) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
+
+    if (error.message === "Live group not found" || error.code === "23503") {
       return res.status(404).json({
         message: "Live group not found"
       });
@@ -130,13 +137,12 @@ export const updateLectureRecordingController = async (req, res) => {
       lesson_date
     });
 
-    const recording = await updateLectureRecording(
-      id,
+    const recording = await updateLectureRecording(id, {
       group_id,
       title,
       video_url,
       lesson_date
-    );
+    });
 
     if (!recording) {
       return res.status(404).json({
@@ -151,7 +157,15 @@ export const updateLectureRecordingController = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.code === "23503") {
+    if (error.message?.includes("UUID") || error.message?.includes("Title") ||
+        error.message?.includes("Video URL") || error.message?.includes("Lesson date") ||
+        error.message?.includes("At least one field")) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
+
+    if (error.message === "Live group not found" || error.code === "23503") {
       return res.status(404).json({
         message: "Live group not found"
       });

@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 import {
   createSyllabusController,
@@ -11,16 +13,30 @@ import {
 
 const router = express.Router();
 
-router.post("/", createSyllabusController);
-
 router.get("/", getAllSyllabusController);
-
 router.get("/course/:courseId", getSyllabusByCourseIdController);
-
 router.get("/:id", getSyllabusByIdController);
 
-router.put("/:id", updateSyllabusController);
 
-router.delete("/:id", deleteSyllabusController);
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  createSyllabusController
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  updateSyllabusController
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteSyllabusController
+);
 
 export default router;

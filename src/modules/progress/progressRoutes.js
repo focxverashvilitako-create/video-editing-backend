@@ -1,33 +1,29 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
 
 import {
   getLessonProgressController,
   updateLessonProgressController,
-    checkLessonAccessController
+  checkLessonAccessController
 } from "./progressControllers.js";
 
 const router = express.Router();
 
+router.use(authMiddleware);
 
-// GET LESSON PROGRESS
 router.get(
-  "/user/:userId/lesson/:lessonId",
+  "/lesson/:lessonId",
   getLessonProgressController
 );
 
-
-// UPDATE LESSON PROGRESS
 router.put(
-  "/user/:userId/lesson/:lessonId",
+  "/lesson/:lessonId",
   updateLessonProgressController
 );
 
-
-// CHECK LESSON ACCESS
 router.get(
-  "/user/:userId/lesson/:lessonId/access",
+  "/lesson/:lessonId/access",
   checkLessonAccessController
 );
-
 
 export default router;

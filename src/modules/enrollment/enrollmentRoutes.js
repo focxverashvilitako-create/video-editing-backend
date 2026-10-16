@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
 
 import {
   enrollUserInGroupController
@@ -6,11 +7,10 @@ import {
 
 const router = express.Router();
 
-
 router.post(
   "/enroll",
+  authMiddleware,
   enrollUserInGroupController
 );
-
 
 export default router;

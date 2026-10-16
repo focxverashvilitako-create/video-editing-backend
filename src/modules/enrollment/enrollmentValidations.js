@@ -1,33 +1,25 @@
-export const validateEnrollment = ({
-  userId,
-  groupId
-}) => {
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const validateEnrollment = ({ userId, groupId }) => {
   const errors = [];
 
-  if (
-    userId === undefined ||
-    userId === null ||
-    userId === ""
-  ) {
+  if (!userId) {
     errors.push("User ID is required");
   } else if (
-    !Number.isInteger(Number(userId)) ||
-    Number(userId) <= 0
+    typeof userId !== "string" ||
+    !UUID_REGEX.test(userId)
   ) {
-    errors.push("User ID must be a valid positive integer");
+    errors.push("User ID must be a valid UUID");
   }
 
-  if (
-    groupId === undefined ||
-    groupId === null ||
-    groupId === ""
-  ) {
+  if (!groupId) {
     errors.push("Group ID is required");
   } else if (
-    !Number.isInteger(Number(groupId)) ||
-    Number(groupId) <= 0
+    typeof groupId !== "string" ||
+    !UUID_REGEX.test(groupId)
   ) {
-    errors.push("Group ID must be a valid positive integer");
+    errors.push("Group ID must be a valid UUID");
   }
 
   if (errors.length > 0) {

@@ -12,11 +12,17 @@ import {
   validateCourseAccess
 } from "./purchaseValidations.js";
 
+
 export const createPurchaseController = async (req, res) => {
   try {
-    const { userId, courseId, paymentId } = req.body;
+    const userId = req.user.id;
+    const { courseId, paymentId } = req.body;
 
-    validateCreatePurchase({ userId, courseId, paymentId });
+    validateCreatePurchase({
+      userId,
+      courseId,
+      paymentId
+    });
 
     const purchase = await createPurchase(
       userId,
@@ -24,16 +30,36 @@ export const createPurchaseController = async (req, res) => {
       paymentId
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Purchase created successfully",
       purchase
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("Create purchase error:", error);
 
-    res.status(400).json({
-      message: error.message
+    if (
+      error.message === "User not found" ||
+      error.message === "Course not found" ||
+      error.message === "Payment not found"
+    ) {
+      return res.status(404).json({
+        message: error.message
+      });
+    }
+
+    if (
+      error.message === "Payment was not successful" ||
+      error.message === "Payment does not belong to this user" ||
+      error.message === "Payment does not belong to this course"
+    ) {
+      return res.status(403).json({
+        message: error.message
+      });
+    }
+
+    return res.status(400).json({
+      message: error.message || "Failed to create purchase"
     });
   }
 };
@@ -41,25 +67,25 @@ export const createPurchaseController = async (req, res) => {
 
 export const getUserPurchasesController = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
+
     validateUserPurchases({ userId });
 
     const purchases = await getUserPurchases(userId);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Purchases fetched successfully",
       purchases
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("Get user purchases error:", error);
 
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to fetch purchases"
     });
   }
 };
-
 
 
 export const getPurchaseByIdController = async (req, res) => {
@@ -76,16 +102,22 @@ export const getPurchaseByIdController = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    if (purchase.user_id !== req.user.id) {
+      return res.status(403).json({
+        message: "You are not allowed to access this purchase"
+      });
+    }
+
+    return res.status(200).json({
       message: "Purchase fetched successfully",
       purchase
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("Get purchase error:", error);
 
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to fetch purchase"
     });
   }
 };
@@ -93,24 +125,29 @@ export const getPurchaseByIdController = async (req, res) => {
 
 export const checkCourseAccessController = async (req, res) => {
   try {
-    const { userId, courseId } = req.params;
+    const userId = req.user.id;
+    const { courseId } = req.params;
 
-    validateCourseAccess({ userId, courseId });
+    validateCourseAccess({
+      userId,
+      courseId
+    });
 
     const hasAccess = await checkCourseAccess(
       userId,
       courseId
     );
 
-    res.status(200).json({
+    return res.status(200).json({
+      courseId,
       hasAccess
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("Check course access error:", error);
 
-    res.status(400).json({
-      message: error.message
+    return res.status(400).json({
+      message: error.message || "Failed to check course access"
     });
   }
 };

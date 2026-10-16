@@ -1,14 +1,17 @@
+console.log("🔥 THIS IS MY CURRENT SERVER");
 import "./config/db.js";
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/authRoutes.js";
+import adminRoutes from "./modules/admin/adminRoutes.js";
 import userRoutes from "./modules/users/userRoutes.js";
 import courseRoutes from "./modules/courses/courseRoutes.js";
 import courseSectionsRoutes from "./modules/coursesections/courseSectionsRoutes.js";
 import lessonRoutes from "./modules/lessons/lessonRoutes.js";
 import purchaseRoutes from "./modules/purchases/purchaseRoutes.js";
+import paymentRoutes from "./modules/payments/paymentsRoutes.js";
 import progressRoutes from "./modules/progress/progressRoutes.js";
 import liveGroupsRoutes from "./modules/livegroups/liveGroupsRoutes.js";
 import enrollmentRoutes from "./modules/enrollment/enrollmentRoutes.js";
@@ -22,9 +25,6 @@ import liveGroupMembersRoutes from "./modules/livegroupmembers/liveGroupMembersR
 const app = express();
 app.use(cors());
 
-
-
-
 app.use(express.json());
 app.use("/enrollments", enrollmentRoutes);
 app.use("/lessons", lessonRoutes);
@@ -32,6 +32,8 @@ app.use("/courses", courseRoutes);
 app.use("/coursesections", courseSectionsRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/admin", adminRoutes);
+app.use("/payments", paymentRoutes);
 app.use("/purchases", purchaseRoutes);
 app.use("/progress", progressRoutes);
 app.use("/livegroups", liveGroupsRoutes);

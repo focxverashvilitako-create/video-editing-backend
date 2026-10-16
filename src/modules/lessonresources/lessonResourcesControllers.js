@@ -1,3 +1,4 @@
+
 import {
   createLessonResource,
   getAllLessonResources,
@@ -34,6 +35,15 @@ export const createLessonResourceController = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+
+    if (error.message?.includes("required") ||
+        error.message?.includes("characters") ||
+        error.message?.includes("valid UUID") ||
+        error.message?.includes("must be a string")) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
 
     if (error.code === "23503") {
       return res.status(404).json({
@@ -91,6 +101,15 @@ export const getResourcesByLessonIdController = async (req, res) => {
   try {
     const { lessonId } = req.params;
 
+    if (
+      typeof lessonId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(lessonId)
+    ) {
+      return res.status(400).json({
+        message: "Lesson ID must be a valid UUID"
+      });
+    }
+
     const resources = await getResourcesByLessonId(lessonId);
 
     res.status(200).json({
@@ -116,12 +135,11 @@ export const updateLessonResourceController = async (req, res) => {
       file_url
     });
 
-    const resource = await updateLessonResource(
-      id,
+    const resource = await updateLessonResource(id, {
       lesson_id,
       title,
-      file_url ?? null
-    );
+      file_url
+    });
 
     if (!resource) {
       return res.status(404).json({
@@ -135,6 +153,16 @@ export const updateLessonResourceController = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+
+    if (error.message?.includes("required") ||
+        error.message?.includes("characters") ||
+        error.message?.includes("valid UUID") ||
+        error.message?.includes("must be a string") ||
+        error.message?.includes("At least one field")) {
+      return res.status(400).json({
+        message: error.message
+      });
+    }
 
     if (error.code === "23503") {
       return res.status(404).json({

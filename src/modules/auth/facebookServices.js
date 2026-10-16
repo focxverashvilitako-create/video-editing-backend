@@ -70,16 +70,21 @@ export const handleFacebookLogin = async (facebookUser) => {
   
 
   let result = await pool.query(
-    `
-    SELECT *
-    FROM users
-    WHERE email = $1
-    `,
-    [
-      email
-    ]
-  );
-
+  `
+  SELECT
+    id,
+    first_name,
+    last_name,
+    email,
+    phone,
+    avatar,
+    role,
+    registration_completed
+  FROM users
+  WHERE email = $1
+  `,
+  [email]
+);
 
   let user = result.rows[0];
 

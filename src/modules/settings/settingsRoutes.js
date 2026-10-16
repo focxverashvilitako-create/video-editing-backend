@@ -1,5 +1,8 @@
 import express from "express";
 
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
+
 import {
   createSettingsController,
   getSettingsController,
@@ -9,12 +12,27 @@ import {
 
 const router = express.Router();
 
-router.post("/", createSettingsController);
-
 router.get("/", getSettingsController);
 
-router.put("/:id", updateSettingsController);
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  createSettingsController
+);
 
-router.delete("/:id", deleteSettingsController);
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  updateSettingsController
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteSettingsController
+);
 
 export default router;

@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 import {
   createLiveGroupController,
@@ -10,37 +12,30 @@ import {
 
 const router = express.Router();
 
+// Public: view live groups and schedules
+router.get("/", getAllLiveGroupsController);
+router.get("/:id", getLiveGroupByIdController);
 
-
+// Admin only: manage live groups
 router.post(
   "/",
+  authMiddleware,
+  roleMiddleware("admin"),
   createLiveGroupController
 );
 
-
-router.get(
-  "/",
-  getAllLiveGroupsController
-);
-
-
-router.get(
-  "/:id",
-  getLiveGroupByIdController
-);
-
-
-
 router.put(
   "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
   updateLiveGroupController
 );
 
-
 router.delete(
   "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
   deleteLiveGroupController
 );
-
 
 export default router;

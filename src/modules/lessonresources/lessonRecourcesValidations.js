@@ -1,3 +1,11 @@
+
+const isValidUUID = (value) => {
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
+};
+
 export const validateCreateLessonResource = ({
   lesson_id,
   title,
@@ -11,11 +19,8 @@ export const validateCreateLessonResource = ({
     lesson_id === ""
   ) {
     errors.push("Lesson ID is required");
-  } else if (
-    !Number.isInteger(Number(lesson_id)) ||
-    Number(lesson_id) <= 0
-  ) {
-    errors.push("Lesson ID must be a valid positive integer");
+  } else if (!isValidUUID(lesson_id)) {
+    errors.push("Lesson ID must be a valid UUID");
   }
 
   if (
@@ -39,7 +44,6 @@ export const validateCreateLessonResource = ({
   }
 };
 
-
 export const validateUpdateLessonResource = ({
   lesson_id,
   title,
@@ -48,11 +52,8 @@ export const validateUpdateLessonResource = ({
   const errors = [];
 
   if (lesson_id !== undefined) {
-    if (
-      !Number.isInteger(Number(lesson_id)) ||
-      Number(lesson_id) <= 0
-    ) {
-      errors.push("Lesson ID must be a valid positive integer");
+    if (!isValidUUID(lesson_id)) {
+      errors.push("Lesson ID must be a valid UUID");
     }
   }
 

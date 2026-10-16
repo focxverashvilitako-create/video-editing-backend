@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 import {
   createLessonResourceController,
@@ -11,11 +13,41 @@ import {
 
 const router = express.Router();
 
-router.post("/", createLessonResourceController);
-router.get("/", getAllLessonResourcesController);
-router.get("/:id", getLessonResourceByIdController);
-router.get("/lesson/:lessonId", getResourcesByLessonIdController);
-router.put("/:id", updateLessonResourceController);
-router.delete("/:id", deleteLessonResourceController);
+// Authenticated users: view lesson resources
+router.get("/", authMiddleware, getAllLessonResourcesController);
 
-export default router; 
+router.get(
+  "/lesson/:lessonId",
+  authMiddleware,
+  getResourcesByLessonIdController
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  getLessonResourceByIdController
+);
+
+// Admin only: manage lesson resources
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  createLessonResourceController
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  updateLessonResourceController
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteLessonResourceController
+);
+
+export default router;

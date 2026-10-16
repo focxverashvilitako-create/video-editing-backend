@@ -1,6 +1,5 @@
 import pool from "../../config/db.js";
 
-
 // CREATE
 export const createSettings = async (
   site_name,
@@ -11,11 +10,34 @@ export const createSettings = async (
   instagram,
   youtube
 ) => {
+  const requiredFields = {
+    site_name,
+    phone,
+    email,
+    address
+  };
+
+  for (const [key, value] of Object.entries(requiredFields)) {
+    if (typeof value !== "string") {
+      throw new Error(`${key} must be a string`);
+    }
+  }
+
+  const optionalFields = {
+    facebook,
+    instagram,
+    youtube
+  };
+
+  for (const [key, value] of Object.entries(optionalFields)) {
+    if (value !== undefined && value !== null && typeof value !== "string") {
+      throw new Error(`${key} must be a string`);
+    }
+  }
 
   const result = await pool.query(
     `
-    INSERT INTO settings
-    (
+    INSERT INTO settings (
       site_name,
       phone,
       email,
@@ -24,8 +46,7 @@ export const createSettings = async (
       instagram,
       youtube
     )
-    VALUES
-    ($1, $2, $3, $4, $5, $6, $7)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
     `,
     [
@@ -33,20 +54,17 @@ export const createSettings = async (
       phone.trim(),
       email.trim(),
       address.trim(),
-      facebook ?? null,
-      instagram ?? null,
-      youtube ?? null
+      facebook?.trim() || null,
+      instagram?.trim() || null,
+      youtube?.trim() || null
     ]
   );
-
 
   return result.rows[0];
 };
 
-
 // GET ALL
 export const getSettings = async () => {
-
   const result = await pool.query(
     `
     SELECT *
@@ -55,17 +73,11 @@ export const getSettings = async () => {
     `
   );
 
-
   return result.rows;
 };
 
-
 // UPDATE
-export const updateSettings = async (
-  id,
-  fields
-) => {
-
+export const updateSettings = async (id, fields) => {
   const allowedFields = {
     site_name: "site_name",
     phone: "phone",
@@ -76,39 +88,38 @@ export const updateSettings = async (
     youtube: "youtube"
   };
 
-
   const updates = [];
   const values = [];
 
-
   for (const [key, value] of Object.entries(fields)) {
-
-    if (
-      value !== undefined &&
-      allowedFields[key]
-    ) {
-
-      updates.push(
-        `${allowedFields[key]} = $${values.length + 1}`
-      );
-
-
-      values.push(
-        typeof value === "string"
-          ? value.trim()
-          : value
-      );
+    if (value === undefined) {
+      continue;
     }
-  }
 
+    if (!Object.hasOwn(allowedFields, key)) {
+      continue;
+    }
+
+    if (value !== null && typeof value !== "string") {
+      throw new Error(`${key} must be a string or null`);
+    }
+
+    updates.push(
+      `${allowedFields[key]} = $${values.length + 1}`
+    );
+
+    values.push(
+      typeof value === "string"
+        ? value.trim() || null
+        : value
+    );
+  }
 
   if (updates.length === 0) {
-    return null;
+    throw new Error("No valid fields provided for update");
   }
 
-
   values.push(id);
-
 
   const result = await pool.query(
     `
@@ -120,16 +131,11 @@ export const updateSettings = async (
     values
   );
 
-
-  return result.rows[0];
+  return result.rows[0] ?? null;
 };
 
-
 // DELETE
-export const deleteSettings = async (
-  id
-) => {
-
+export const deleteSettings = async (id) => {
   const result = await pool.query(
     `
     DELETE FROM settings
@@ -139,6 +145,5 @@ export const deleteSettings = async (
     [id]
   );
 
-
-  return result.rows[0];
+  return result.rows[0] ?? null;
 };

@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../../middleware/authMiddleware.js";
+import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 import {
   createLectureRecordingController,
@@ -11,16 +13,41 @@ import {
 
 const router = express.Router();
 
-router.post("/", createLectureRecordingController);
+// Authenticated users: view lecture recordings
+router.get("/", authMiddleware, getAllLectureRecordingsController);
 
-router.get("/", getAllLectureRecordingsController);
+router.get(
+  "/group/:groupId",
+  authMiddleware,
+  getLectureRecordingsByGroupIdController
+);
 
-router.get("/group/:groupId", getLectureRecordingsByGroupIdController);
+router.get(
+  "/:id",
+  authMiddleware,
+  getLectureRecordingByIdController
+);
 
-router.get("/:id", getLectureRecordingByIdController);
+// Admin only: manage lecture recordings
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  createLectureRecordingController
+);
 
-router.put("/:id", updateLectureRecordingController);
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  updateLectureRecordingController
+);
 
-router.delete("/:id", deleteLectureRecordingController);
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteLectureRecordingController
+);
 
 export default router;

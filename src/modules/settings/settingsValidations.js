@@ -1,3 +1,4 @@
+
 export const validateCreateSettings = ({
   site_name,
   phone,
@@ -7,11 +8,9 @@ export const validateCreateSettings = ({
   instagram,
   youtube
 }) => {
-
   const errors = [];
 
   if (
-    !site_name ||
     typeof site_name !== "string" ||
     site_name.trim().length < 2
   ) {
@@ -19,7 +18,6 @@ export const validateCreateSettings = ({
   }
 
   if (
-    !phone ||
     typeof phone !== "string" ||
     phone.trim().length === 0
   ) {
@@ -27,50 +25,39 @@ export const validateCreateSettings = ({
   }
 
   if (
-    !email ||
     typeof email !== "string" ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   ) {
     errors.push("Email must be a valid email address");
   }
 
   if (
-    !address ||
     typeof address !== "string" ||
     address.trim().length === 0
   ) {
     errors.push("Address is required");
   }
 
-  if (
-    facebook !== undefined &&
-    facebook !== null &&
-    typeof facebook !== "string"
-  ) {
-    errors.push("Facebook must be a string");
-  }
+  const optionalFields = {
+    facebook: facebook,
+    instagram: instagram,
+    youtube: youtube
+  };
 
-  if (
-    instagram !== undefined &&
-    instagram !== null &&
-    typeof instagram !== "string"
-  ) {
-    errors.push("Instagram must be a string");
-  }
-
-  if (
-    youtube !== undefined &&
-    youtube !== null &&
-    typeof youtube !== "string"
-  ) {
-    errors.push("YouTube must be a string");
+  for (const [key, value] of Object.entries(optionalFields)) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      typeof value !== "string"
+    ) {
+      errors.push(`${key} must be a string`);
+    }
   }
 
   if (errors.length > 0) {
     throw new Error(errors.join(", "));
   }
 };
-
 
 export const validateUpdateSettings = ({
   site_name,
@@ -81,7 +68,6 @@ export const validateUpdateSettings = ({
   instagram,
   youtube
 }) => {
-
   const errors = [];
 
   if (site_name !== undefined) {
@@ -105,7 +91,7 @@ export const validateUpdateSettings = ({
   if (email !== undefined) {
     if (
       typeof email !== "string" ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
     ) {
       errors.push("Email must be a valid email address");
     }
@@ -120,28 +106,20 @@ export const validateUpdateSettings = ({
     }
   }
 
-  if (
-    facebook !== undefined &&
-    facebook !== null &&
-    typeof facebook !== "string"
-  ) {
-    errors.push("Facebook must be a string");
-  }
+  const optionalFields = {
+    facebook: facebook,
+    instagram: instagram,
+    youtube: youtube
+  };
 
-  if (
-    instagram !== undefined &&
-    instagram !== null &&
-    typeof instagram !== "string"
-  ) {
-    errors.push("Instagram must be a string");
-  }
-
-  if (
-    youtube !== undefined &&
-    youtube !== null &&
-    typeof youtube !== "string"
-  ) {
-    errors.push("YouTube must be a string");
+  for (const [key, value] of Object.entries(optionalFields)) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      typeof value !== "string"
+    ) {
+      errors.push(`${key} must be a string`);
+    }
   }
 
   const hasNoFields =
@@ -162,29 +140,11 @@ export const validateUpdateSettings = ({
   }
 };
 
+export const validateSettingsId = ({ id }) => {
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export const validateSettingsId = ({
-  id
-}) => {
-
-  const errors = [];
-
-  if (
-    id === undefined ||
-    id === null ||
-    id === ""
-  ) {
-    errors.push("Settings ID is required");
-  } else if (
-    !Number.isInteger(Number(id)) ||
-    Number(id) <= 0
-  ) {
-    errors.push(
-      "Settings ID must be a valid positive integer"
-    );
-  }
-
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
+  if (typeof id !== "string" || !uuidRegex.test(id)) {
+    throw new Error("Settings ID must be a valid UUID");
   }
 };

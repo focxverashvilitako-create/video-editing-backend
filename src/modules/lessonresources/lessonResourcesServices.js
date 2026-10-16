@@ -1,3 +1,4 @@
+
 import pool from "../../config/db.js";
 
 export const createLessonResource = async (
@@ -6,10 +7,13 @@ export const createLessonResource = async (
   file_url
 ) => {
   const result = await pool.query(
-    `INSERT INTO lesson_resources (lesson_id, title, file_url)
-     VALUES ($1, $2, $3)
-     RETURNING *`,
-    [lesson_id, title, file_url]
+    `
+    INSERT INTO lesson_resources
+      (lesson_id, title, file_url)
+    VALUES ($1, $2, $3)
+    RETURNING *
+    `,
+    [lesson_id, title.trim(), file_url]
   );
 
   return result.rows[0];
@@ -17,8 +21,11 @@ export const createLessonResource = async (
 
 export const getAllLessonResources = async () => {
   const result = await pool.query(
-    `SELECT * FROM lesson_resources
-     ORDER BY id`
+    `
+    SELECT *
+    FROM lesson_resources
+    ORDER BY id
+    `
   );
 
   return result.rows;
@@ -26,8 +33,11 @@ export const getAllLessonResources = async () => {
 
 export const getLessonResourceById = async (id) => {
   const result = await pool.query(
-    `SELECT * FROM lesson_resources
-     WHERE id = $1`,
+    `
+    SELECT *
+    FROM lesson_resources
+    WHERE id = $1
+    `,
     [id]
   );
 
@@ -36,9 +46,12 @@ export const getLessonResourceById = async (id) => {
 
 export const getResourcesByLessonId = async (lesson_id) => {
   const result = await pool.query(
-    `SELECT * FROM lesson_resources
-     WHERE lesson_id = $1
-     ORDER BY id`,
+    `
+    SELECT *
+    FROM lesson_resources
+    WHERE lesson_id = $1
+    ORDER BY id
+    `,
     [lesson_id]
   );
 
@@ -56,10 +69,7 @@ export const updateLessonResource = async (id, fields) => {
   const values = [];
 
   for (const [key, value] of Object.entries(fields)) {
-    if (
-      value !== undefined &&
-      allowedFields[key]
-    ) {
+    if (value !== undefined && allowedFields[key]) {
       updates.push(
         `${allowedFields[key]} = $${values.length + 1}`
       );
@@ -87,7 +97,9 @@ export const updateLessonResource = async (id, fields) => {
     );
 
     if (lessonResult.rows.length === 0) {
-      throw new Error("Lesson not found");
+      const error = new Error("Lesson not found");
+      error.code = "23503";
+      throw error;
     }
   }
 
@@ -108,9 +120,11 @@ export const updateLessonResource = async (id, fields) => {
 
 export const deleteLessonResource = async (id) => {
   const result = await pool.query(
-    `DELETE FROM lesson_resources
-     WHERE id = $1
-     RETURNING *`,
+    `
+    DELETE FROM lesson_resources
+    WHERE id = $1
+    RETURNING *
+    `,
     [id]
   );
 

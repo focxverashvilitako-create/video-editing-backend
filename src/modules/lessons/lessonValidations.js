@@ -1,3 +1,33 @@
+
+const isValidUUID = (value) => {
+  return (
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
+};
+
+const validateSectionId = (section_id, errors) => {
+  if (
+    section_id === undefined ||
+    section_id === null ||
+    section_id === ""
+  ) {
+    errors.push("Section ID is required");
+  } else if (!isValidUUID(section_id)) {
+    errors.push("Section ID must be a valid UUID");
+  }
+};
+
+const validateProvider = (provider, errors) => {
+  if (
+    provider !== undefined &&
+    provider !== null &&
+    !["vimeo", "aws"].includes(provider)
+  ) {
+    errors.push("Provider must be either vimeo or aws");
+  }
+};
+
 export const validateCreateLesson = ({
   section_id,
   title,
@@ -10,18 +40,7 @@ export const validateCreateLesson = ({
 }) => {
   const errors = [];
 
-  if (
-    section_id === undefined ||
-    section_id === null ||
-    section_id === ""
-  ) {
-    errors.push("Section ID is required");
-  } else if (
-    !Number.isInteger(Number(section_id)) ||
-    Number(section_id) <= 0
-  ) {
-    errors.push("Section ID must be a valid positive integer");
-  }
+  validateSectionId(section_id, errors);
 
   if (
     !title ||
@@ -48,31 +67,23 @@ export const validateCreateLesson = ({
   }
 
   if (
-    duration === undefined ||
-    duration === null
-  ) {
-    errors.push("Duration is required");
-  } else if (
-    !Number.isInteger(Number(duration)) ||
-    Number(duration) < 0
+    duration !== undefined &&
+    duration !== null &&
+    (
+      !Number.isInteger(Number(duration)) ||
+      Number(duration) < 0
+    )
   ) {
     errors.push("Duration must be a non-negative integer");
   }
 
-  if (
-    provider !== undefined &&
-    provider !== null &&
-    typeof provider !== "string"
-  ) {
-    errors.push("Provider must be a string");
-  }
+  validateProvider(provider, errors);
 
   if (
-    is_preview === undefined ||
-    is_preview === null
+    is_preview !== undefined &&
+    is_preview !== null &&
+    typeof is_preview !== "boolean"
   ) {
-    errors.push("is_preview is required");
-  } else if (typeof is_preview !== "boolean") {
     errors.push("is_preview must be a boolean");
   }
 
@@ -93,7 +104,6 @@ export const validateCreateLesson = ({
   }
 };
 
-
 export const validateUpdateLesson = ({
   section_id,
   title,
@@ -107,11 +117,8 @@ export const validateUpdateLesson = ({
   const errors = [];
 
   if (section_id !== undefined) {
-    if (
-      !Number.isInteger(Number(section_id)) ||
-      Number(section_id) <= 0
-    ) {
-      errors.push("Section ID must be a valid positive integer");
+    if (!isValidUUID(section_id)) {
+      errors.push("Section ID must be a valid UUID");
     }
   }
 
@@ -140,27 +147,25 @@ export const validateUpdateLesson = ({
     errors.push("Video URL must be a string");
   }
 
-  if (duration !== undefined) {
-    if (
+  if (
+    duration !== undefined &&
+    duration !== null &&
+    (
       !Number.isInteger(Number(duration)) ||
       Number(duration) < 0
-    ) {
-      errors.push("Duration must be a non-negative integer");
-    }
+    )
+  ) {
+    errors.push("Duration must be a non-negative integer");
   }
+
+  validateProvider(provider, errors);
 
   if (
-    provider !== undefined &&
-    provider !== null &&
-    typeof provider !== "string"
+    is_preview !== undefined &&
+    is_preview !== null &&
+    typeof is_preview !== "boolean"
   ) {
-    errors.push("Provider must be a string");
-  }
-
-  if (is_preview !== undefined) {
-    if (typeof is_preview !== "boolean") {
-      errors.push("is_preview must be a boolean");
-    }
+    errors.push("is_preview must be a boolean");
   }
 
   if (sort_order !== undefined) {
